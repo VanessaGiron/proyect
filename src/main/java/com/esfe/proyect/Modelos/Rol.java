@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 
 @Entity
-public class Roles {
+public class Rol {
      @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer Id;

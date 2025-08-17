@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 
 @Entity
-public class Clientes {
+public class Cliente {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -22,7 +22,7 @@ public class Clientes {
     @NotBlank(message = "El teléfono es requerido")
     private String telefono;
 
-    public Clientes() {}
+    public Cliente() {}
 
     public Integer getId() {
         return id;
