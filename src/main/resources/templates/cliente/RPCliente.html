@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html xmlns="http://www.thymeleaf.org">
+<head>
+    <style>
+        body {font-family: Arial, sans-serif;}
+        table {width: 100%; border-collapse: collapse;}
+        th, td {border: 1px solid black; padding: 6px;}
+        th {background-color: #f2f2f2;}
+    </style>
+</head>
+<body>
+    <h1>Lista de Clientes</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>Nombre</th>
+                <th>Apellido</th>
+                <th>Direccion</th>
+                <th>Telefono</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="cliente : ${clientes}">
+                <td th:text="${cliente.nombre}"></td>
+                <td th:text="${cliente.apellido}"></td>
+                <td th:text="${cliente.direccion}"></td>
+                <td th:text="${cliente.telefono}"></td>
+                
+            </tr>
+        </tbody>
+    </table>
+</body>
+</html>
