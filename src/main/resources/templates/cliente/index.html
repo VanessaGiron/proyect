@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/_mainLayout}"><!--Aqui es mas actualizada-->
+
+<head>
+    <title layout:title-pattern="$CONTENT_TITLE">Clientes</title> <!--Aqui-->
+</head>
+
+<body>
+    <section layout:fragment="content">
+        <!-- Alertas -->
+        <div th:if="${msg != null}">
+            <script th:inline="javascript">//aqui para el manejo de errores 
+                
+                document.addEventListener('DOMContentLoaded', function() {
+                    Swal.fire({
+                        title: "Confirmación",
+                        text:  '',
+                        icon: "success"
+                    });
+                });
+            </script>
+        </div>
+        <div th:if="${error != null}">
+            <script th:inline="javascript">
+               
+                document.addEventListener('DOMContentLoaded', function() {
+                    Swal.fire({
+                        title: "Error",
+                        text: '',
+                        icon: "error"
+                    });
+                });
+                
+            </script>
+        </div>
+        
+        <div class="d-sm-flex align-items-center justify-content-between mb-4">
+            <h1 class="h3 mb-0 text-gray-800">Listado de Clientes</h1>
+        </div>
+
+        <!-- Content Row -->
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">Clientes Registrados</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <a th:href="@{/clientes/create}" class="btn btn-success btn-icon-split">
+                                <span class="icon text-white-50">
+                                    <i class="fas fa-plus"></i>
+                                </span>
+                                <span class="text">Nuevo Cliente</span>
+                            </a>
+                        </div>
+                        
+                        <div class="table-responsive">
+                            <table class="table table-bordered" width="100%" cellspacing="0">
+                                <thead class="thead-dark">
+                                    <tr>
+                                        <th>Nombre</th>
+                                        <th>Apellido</th>
+                                        <th>Dirección</th>
+                                        <th>Teléfono</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>                
+                                <tbody>
+                                    <tr th:each="cliente : ${clientes.content}">
+                                        <td th:text="${cliente.nombre}">Nombre</td>
+                                        <td th:text="${cliente.apellido}">Apellido</td>
+                                        <td th:text="${cliente.direccion}">Dirección</td>
+                                        <td th:text="${cliente.telefono}">Teléfono</td>
+                                        <td>
+                                            <div class="btn-group" role="group">
+                                                <a th:href="@{/clientes/view/{id}(id=${cliente.id})}" 
+                                                   class="btn btn-info btn-sm mr-1">
+                                                    <i class="fas fa-eye"></i>
+                                                </a>
+                                                <a th:href="@{/clientes/edit/{id}(id=${cliente.id})}" 
+                                                   class="btn btn-warning btn-sm mr-1">
+                                                    <i class="fas fa-edit"></i>
+                                                </a>
+                                                <a th:href="@{/clientes/delete/{id}(id=${cliente.id})}" 
+                                                   class="btn btn-danger btn-sm">
+                                                    <i class="fas fa-trash"></i>
+                                                </a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr th:if="${clientes.totalElements == 0}">
+                                        <td colspan="5" class="text-center text-muted py-4">
+                                            <i class="fas fa-users fa-2x mb-2"></i>
+                                            <br>No hay clientes registrados.
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Paginación -->
+                        <nav th:if="${pageNumbers}">
+                            <ul class="pagination justify-content-center">
+                                <li th:each="pageNum : ${pageNumbers}" class="page-item"
+                                    th:classappend="${pageNum == clientes.number + 1} ? 'active'">
+                                    <a class="page-link" th:href="@{/clientes(page=${pageNum}, size=${clientes.size})}" 
+                                       th:text="${pageNum}"></a>
+                                </li>
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div layout:fragment="scripts"><!--y este para que cargue correctamente la vista -->
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                console.log('Página de clientes cargada correctamente');
+            });
+        </script>
+    </div>
+</body>
+</html>
