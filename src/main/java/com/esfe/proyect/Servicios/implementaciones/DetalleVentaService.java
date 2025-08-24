@@ -22,7 +22,7 @@ public class DetalleVentaService implements IDestalleVentaService {
 
     @Override
     public Page<DetalleVenta> buscarTodosPaginados(Pageable pageable) {
-        return detalleVentaRepository.findByOrderByDetalleVentaDesc(pageable);
+        return detalleVentaRepository.findByOrderByIdDesc(pageable);
     }
 
     @Override
