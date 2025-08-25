@@ -14,7 +14,7 @@ public class Venta {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @NotNull(message = "La fecha de venta es requerida")
+    @NotBlank(message = "La fecha de venta es requerida")
     private LocalDate fechaVenta;
 
     @ManyToOne
@@ -24,7 +24,7 @@ public class Venta {
     @OneToMany(mappedBy = "venta", cascade = CascadeType.ALL)
     private List<DetalleVenta> detalles;
 
-    @NotNull(message = "El total es requerido")
+    @NotBlank(message = "El total es requerido")
     @Positive(message = "El total debe ser mayor que cero")
     private Double total;
 
