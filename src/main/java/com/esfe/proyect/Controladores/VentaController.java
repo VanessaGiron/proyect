@@ -1,6 +1,8 @@
 package com.esfe.proyect.Controladores;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -24,6 +26,9 @@ import com.esfe.proyect.Modelos.Cliente;
 import com.esfe.proyect.Modelos.Venta;
 import com.esfe.proyect.Servicios.interfaces.IClienteService;
 import com.esfe.proyect.Servicios.interfaces.IVentaService;
+import com.esfe.proyect.utilidades.PdfGeneratorService;
+
+import jakarta.servlet.http.HttpServletResponse;
 
 @Controller
 @RequestMapping("/ventas")
@@ -34,6 +39,9 @@ public class VentaController {
 
     @Autowired
     private IClienteService clienteService;
+
+    @Autowired
+    private PdfGeneratorService pdfGeneratorService;
 
     @GetMapping
     public String index(Model model,
@@ -128,6 +136,28 @@ public class VentaController {
         ventaService.eliminarPorId(venta.getId());
         redirect.addFlashAttribute("msg", "venta eliminada correctamente");
         return "redirect:/ventas";
+    }
+
+     @GetMapping("/ventaPDF")
+    public void generarPdf(Model model, HttpServletResponse response) throws Exception {
+        // 1. Obtener datos a mostrar en el pdf
+        List<Venta> ventas = ventaService.obtenerTodos();
+
+        // 2. Preparar datos para Thymeleaf
+        Map<String, Object> data = new HashMap<>();
+        data.put("ventas", ventas);
+
+        //3. Generar PDF (con el nombre de la plantilla Thymeleaf que quieres usar)
+        byte[] pdfBytes = pdfGeneratorService.generatePdfReport("venta/RPVenta", data);
+
+        // 4. Configurar la respuesta HTTP para descargar o mostrar el PDF
+        response.setContentType("application/pdf");
+        response.setHeader("Content-Disposition", "inline; filename=ventas.pdf");
+        response.setContentLength(pdfBytes.length);
+
+        //5. Escribir el PDF en la respuesta
+        response.getOutputStream().write(pdfBytes);
+        response.getOutputStream().flush();
     }
 
 }
