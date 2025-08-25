@@ -2,7 +2,8 @@ package com.esfe.proyect.Modelos;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
-import java.util.Date;
+
+import java.time.LocalDate;
 import java.util.List;
 
 @Entity
@@ -14,7 +15,7 @@ public class Venta {
     private Integer id;
 
     @NotNull(message = "La fecha de venta es requerida")
-    private Date fechaVenta;
+    private LocalDate fechaVenta;
 
     @ManyToOne
     @JoinColumn(name = "cliente_id", nullable = false)
@@ -41,11 +42,11 @@ public class Venta {
         this.id = id;
     }
 
-    public Date getFechaVenta() {
+    public LocalDate getFechaVenta() {
         return fechaVenta;
     }
 
-    public void setFechaVenta(Date fechaVenta) {
+    public void setFechaVenta(LocalDate fechaVenta) {
         this.fechaVenta = fechaVenta;
     }
 
