@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/_mainLayout}">
+<head>
+    <title th:text="'Mantenimiento de Producto - '+ ${action}">Mantenimiento</title>
+    <link rel="stylesheet" th:href="@{/assets/css/sb-admin-2.min.css}">
+</head>
+<body>
+    <div layout:fragment="content" class="container mt-4">
+        <h2 th:text="'Producto - '+ ${action}">Producto</h2>
+
+        <form th:action="@{'/producto/' + ${action}}" th:object="${producto}" method="post">
+            <input type="hidden" th:field="*{id}">
+
+            <div class="form-group mb-3">
+                <label for="nombre">Nombre:</label>
+                <input type="text" id="nombre" th:field="*{nombre}" class="form-control" 
+                       th:readonly="${action == 'view' or action == 'delete'}" />
+                <div class="text-danger" th:if="${#fields.hasErrors('nombre')}" th:errors="*{nombre}"></div>
+            </div>
+
+            <div class="form-group mb-3">
+                <label for="descripcion">Descripción:</label>
+                <input type="text" id="descripcion" th:field="*{descripcion}" class="form-control" 
+                       th:readonly="${action == 'view' or action == 'delete'}" />
+                <div class="text-danger" th:if="${#fields.hasErrors('descripcion')}" th:errors="*{descripcion}"></div>
+            </div>
+
+            <div class="form-group mb-3">
+                <label for="precio">Precio:</label>
+                <input type="number" id="precio" th:field="*{precio}" class="form-control" step="0.01"
+                       th:readonly="${action == 'view' or action == 'delete'}" />
+                <div class="text-danger" th:if="${#fields.hasErrors('precio')}" th:errors="*{precio}"></div>
+            </div>
+
+            <div class="form-group mb-3">
+                <label for="stock">Stock:</label>
+                <input type="number" id="stock" th:field="*{stock}" class="form-control"
+                       th:readonly="${action == 'view' or action == 'delete'}" />
+                <div class="text-danger" th:if="${#fields.hasErrors('stock')}" th:errors="*{stock}"></div>
+            </div>
+
+            <div class="form-group mb-3">
+                <label for="tipo">Tipo:</label>
+                <select id="tipo" th:field="*{tipo}" class="form-control"
+                        th:disabled="${action == 'view' or action == 'delete'}" required>
+                    <option value="" disabled th:selected="${producto.tipo == null}">--Seleccione--</option>
+                    <option value="Programado" th:selected="${producto.tipo == 'Programado'}">Programado</option>
+                    <option value="Manual" th:selected="${producto.tipo == 'Manual'}">Manual</option>
+                    <option value="Ambas" th:selected="${producto.tipo == 'Ambas'}">Ambas</option>
+                </select>
+                <div class="text-danger" th:if="${#fields.hasErrors('tipo')}" th:errors="*{tipo}"></div>
+            </div>
+
+            <div class="form-group mb-3">
+                <label for="marca">Marca:</label>
+                <input type="text" id="marca" th:field="*{marca}" class="form-control"
+                       th:readonly="${action == 'view' or action == 'delete'}" />
+                <div class="text-danger" th:if="${#fields.hasErrors('marca')}" th:errors="*{marca}"></div>
+            </div>
+
+            <div class="form-group">
+                <button type="submit" class="btn btn-primary" 
+                        th:text="${action == 'edit' ? 'Actualizar' : (action == 'delete' ? 'Eliminar' : 'Guardar')}">
+                </button>
+                <a th:href="@{/producto}" class="btn btn-secondary">Cancelar</a>
+            </div>
+        </form>
+    </div>
+</body>
+</html>
