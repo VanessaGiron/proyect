@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html xmlns="http://www.thymeleaf.org">
+<head>
+    <style>
+        body {font-family: Arial, sans-serif;}
+        table {width: 100%; border-collapse: collapse;}
+        th, td {border: 1px solid black; padding: 6px;}
+        th {background-color: #f2f2f2;}
+    </style>
+</head>
+<body>
+    <h1>Lista de detalles de ventas</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>Venta</th>
+                <th>Producto</th>
+                <th>Cantidad</th>
+                <th>Precio Unitario</th>
+                <th>Subtotal</th>
+            </tr>
+        </thead>
+        <tbody>
+             <tr th:each="detalleVenta : ${detalleVentas}">
+                <td th:text="${detalleVenta.venta.fechaVenta}">Fecha de Venta</td>
+                <td th:text="${detalleVenta.producto.nombre}">Nombre</td>
+                <td th:text="${detalleVenta.cantidad}">Cantidad</td>
+                <td th:text="${detalleVenta.precioUnitario}">Precio Unitario</td>
+                <td th:text="${detalleVenta.subtotal}">Subtotal</td>
+            </tr>
+             <tr th:if="${#lists.isEmpty(detalleVentas)}">
+                <td colspan="6" style="text-align:center; color: #999;">No hay productos registrados.</td>
+            </tr>
+        </tbody>
+    </table>
+</body>
+</html>

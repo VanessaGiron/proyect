@@ -1,7 +1,9 @@
 package com.esfe.proyect.Controladores;
 
 import java.math.BigDecimal;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -27,6 +29,9 @@ import com.esfe.proyect.Modelos.Venta;
 import com.esfe.proyect.Servicios.interfaces.IDestalleVentaService;
 import com.esfe.proyect.Servicios.interfaces.IProductoService;
 import com.esfe.proyect.Servicios.interfaces.IVentaService;
+import com.esfe.proyect.utilidades.PdfGeneratorService;
+
+import jakarta.servlet.http.HttpServletResponse;
 
 @Controller
 @RequestMapping("/detalleVentas")
@@ -40,6 +45,9 @@ public class DetalleVentaController {
 
     @Autowired
     private IProductoService productoService;
+
+    @Autowired
+    private PdfGeneratorService pdfGeneratorService;
 
     @GetMapping
     public String index(Model model,
@@ -165,5 +173,27 @@ public String saveEditado(@ModelAttribute DetalleVenta detalleVenta, BindingResu
         destalleVentaService.eliminarPorId(detalleVenta.getId());
         redirect.addFlashAttribute("msg", "Detalle de venta eliminado correctamente");
         return "redirect:/detalleVentas";   
+    }
+
+     @GetMapping("/detallesPDF")
+    public void generarPdfDetalles(Model model, HttpServletResponse response) throws Exception {
+    // 1. Obtener datos de detalles de venta a mostrar en el PDF
+    List<DetalleVenta> detalleVentas = destalleVentaService.obtenerTodos(); // O tu método que devuelve todos los detalles de venta
+
+    // 2. Preparar datos para Thymeleaf
+    Map<String, Object> data = new HashMap<>();
+    data.put("detalleVentas", detalleVentas);
+
+    // 3. Generar PDF (nombre de la plantilla Thymeleaf para detalles de venta)
+    byte[] pdfBytes = pdfGeneratorService.generatePdfReport("detalleVenta/RPDetalles", data);
+
+    // 4. Configurar la respuesta HTTP para descargar o mostrar el PDF
+    response.setContentType("application/pdf");
+    response.setHeader("Content-Disposition", "inline; filename=detalles.pdf");
+    response.setContentLength(pdfBytes.length);
+
+    // 5. Escribir el PDF en la respuesta
+    response.getOutputStream().write(pdfBytes);
+    response.getOutputStream().flush();
     }
 }

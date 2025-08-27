@@ -40,12 +40,16 @@
                 <div class="text-danger" th:if="${#fields.hasErrors('cantidad')}" th:errors="*{cantidad}"></div>
             </div>
 
-            <div class="form-group mb-3">
-                <label for="precioUnitario">Precio Unitario:</label>
-                <input type="number" id="precioUnitario" th:field="*{precioUnitario}" class="form-control" step="0.01"
-                       th:readonly="${action == 'view' or action == 'delete'}" />
-                <div class="text-danger" th:if="${#fields.hasErrors('precioUnitario')}" th:errors="*{precioUnitario}"></div>
-            </div>
+             <div class="form-group mb-3">
+       <label for="precioUnitario">Precio Unitario:</label>
+       <select id="precioUnitario" th:field="*{precioUnitario}" class="form-control"
+               th:disabled="${action == 'view' or action == 'delete'}">
+        <option value="300">$300</option>
+        <option value="500">$500</option>
+        <option value="700">$700</option>
+       </select>
+        <div class="text-danger" th:if="${#fields.hasErrors('precioUnitario')}" th:errors="*{precioUnitario}"></div>
+    </div>
 
             <div class="form-group mb-3">
                 <label for="subtotal">Subtotal:</label>
