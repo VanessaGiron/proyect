@@ -22,7 +22,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import com.esfe.proyect.Modelos.Cliente;
 import com.esfe.proyect.Modelos.Venta;
 import com.esfe.proyect.Servicios.interfaces.IClienteService;
 import com.esfe.proyect.Servicios.interfaces.IVentaService;
@@ -68,7 +67,7 @@ public class VentaController {
     @GetMapping("/create")
     public String create(Model model) {
         model.addAttribute("venta", new Venta());
-        model.addAttribute("cliente", clienteService.obtenerTodos());
+        model.addAttribute("clientes", clienteService.obtenerTodos());
         model.addAttribute("action", "create");
         return "venta/mant";
     }
@@ -77,7 +76,7 @@ public class VentaController {
     public String edit(@PathVariable Integer id, Model model) {
         Venta venta = ventaService.buscarPorId(id).orElseThrow();
         model.addAttribute("venta", venta);
-        model.addAttribute("cliente", clienteService.obtenerTodos());
+        model.addAttribute("clientes", clienteService.obtenerTodos());
         model.addAttribute("action", "edit");
         return "venta/mant";
     }
@@ -86,7 +85,7 @@ public class VentaController {
     public String view(@PathVariable Integer id, Model model) {
         Venta venta = ventaService.buscarPorId(id).orElseThrow();
         model.addAttribute("venta", venta);
-        model.addAttribute("cliente", clienteService.obtenerTodos());
+        model.addAttribute("clientes", clienteService.obtenerTodos());
         model.addAttribute("action", "view");
         return "venta/mant";
     }
@@ -95,10 +94,11 @@ public class VentaController {
     public String deleteConfirm(@PathVariable Integer id, Model model) {
         Venta venta = ventaService.buscarPorId(id).orElseThrow();
         model.addAttribute("venta", venta);
-        model.addAttribute("cliente", clienteService.obtenerTodos());
+        model.addAttribute("clientes", clienteService.obtenerTodos());
         model.addAttribute("action", "delete");
         return "venta/mant";
     }
+
 
     @PostMapping("/create")
     public String saveNuevo(@ModelAttribute Venta venta,
@@ -107,7 +107,7 @@ public class VentaController {
                             Model model) {
         if (result.hasErrors()) {
             model.addAttribute("action", "create");
-            model.addAttribute("cliente", clienteService.obtenerTodos());
+            model.addAttribute("clientes", clienteService.obtenerTodos());
             return "venta/mant";
         }
         ventaService.crearOEditar(venta);
@@ -122,7 +122,7 @@ public class VentaController {
                               Model model) {
         if(result.hasErrors()) {
             model.addAttribute("action", "edit");
-            model.addAttribute("cliente", clienteService.obtenerTodos());
+            model.addAttribute("clientes", clienteService.obtenerTodos());
             return "venta/mant";
         }
         ventaService.crearOEditar(venta);

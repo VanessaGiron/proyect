@@ -14,7 +14,7 @@ public class Venta {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @NotBlank(message = "La fecha de venta es requerida")
+    @NotNull(message = "La fecha de venta es requerida")
     private LocalDate fechaVenta;
 
     @ManyToOne
@@ -24,11 +24,11 @@ public class Venta {
     @OneToMany(mappedBy = "venta", cascade = CascadeType.ALL)
     private List<DetalleVenta> detalles;
 
-    @NotBlank(message = "El total es requerido")
+    @NotNull(message = "El total es requerido")
     @Positive(message = "El total debe ser mayor que cero")
     private Double total;
 
-    @NotBlank(message = "El estado de la venta es requerido")
+    @NotNull(message = "El estado de la venta es requerido")
     private String estado; // Para "Pendiente", "Completada", "Cancelada" aqui va a depender de lo que decidamos 
 
 

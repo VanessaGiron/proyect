@@ -1,5 +1,6 @@
 package com.esfe.proyect.Controladores;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -21,7 +22,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.esfe.proyect.Modelos.DetalleVenta;
+import com.esfe.proyect.Modelos.Producto;
+import com.esfe.proyect.Modelos.Venta;
 import com.esfe.proyect.Servicios.interfaces.IDestalleVentaService;
+import com.esfe.proyect.Servicios.interfaces.IProductoService;
 import com.esfe.proyect.Servicios.interfaces.IVentaService;
 
 @Controller
@@ -33,6 +37,9 @@ public class DetalleVentaController {
 
     @Autowired
     private IVentaService ventaService;
+
+    @Autowired
+    private IProductoService productoService;
 
     @GetMapping
     public String index(Model model,
@@ -52,14 +59,15 @@ public class DetalleVentaController {
             .boxed().collect(Collectors.toList());
             model.addAttribute("pageNumbers", pageNumbers);
         }
-        return "detalleVentas/index";
+        return "detalleVenta/index";
     }
 
     //---- CREAR -----
     @GetMapping("/create")
     public String create(Model model) {
         model.addAttribute("detalleVenta", new DetalleVenta());
-        model.addAttribute("ventas", ventaService.obtenerTodos());
+        model.addAttribute("venta", ventaService.obtenerTodos());
+        model.addAttribute("producto", productoService.obtenerTodos());
         model.addAttribute("action", "create");
         return "detalleVenta/mant";
     }
@@ -69,7 +77,8 @@ public class DetalleVentaController {
     public String edit(@PathVariable Integer id, Model model) {
         DetalleVenta detalleVenta = destalleVentaService.buscarPorId(id);
         model.addAttribute("detalleVenta", detalleVenta);
-        model.addAttribute("ventas", ventaService.obtenerTodos());
+        model.addAttribute("venta", ventaService.obtenerTodos());
+        model.addAttribute("producto", productoService.obtenerTodos());
         model.addAttribute("action", "edit");
         return "detalleVenta/mant";
     }
@@ -79,7 +88,8 @@ public class DetalleVentaController {
     public String view(@PathVariable Integer id, Model model) {
         DetalleVenta detalleVenta = destalleVentaService.buscarPorId(id);
         model.addAttribute("detalleVenta", detalleVenta);
-        model.addAttribute("ventas", ventaService.obtenerTodos());
+        model.addAttribute("venta", ventaService.obtenerTodos());
+        model.addAttribute("producto", productoService.obtenerTodos());
         model.addAttribute("action", "view");
         return "detalleVenta/mant";
     }
@@ -89,7 +99,8 @@ public class DetalleVentaController {
     public String deleteConfirm(@PathVariable Integer id, Model model) {
         DetalleVenta detalleVenta = destalleVentaService.buscarPorId(id);
         model.addAttribute("detalleVenta", detalleVenta);
-        model.addAttribute("ventas", ventaService.obtenerTodos());
+        model.addAttribute("venta", ventaService.obtenerTodos());
+        model.addAttribute("producto", productoService.obtenerTodos());
         model.addAttribute("action", "delete");
         return "detalleVenta/mant";
     }
@@ -101,10 +112,23 @@ public class DetalleVentaController {
 
         if (result.hasErrors()) {
             model.addAttribute("detalleVentas", destalleVentaService.obtenerTodos());
-            model.addAttribute("ventas", ventaService.obtenerTodos());
+            model.addAttribute("venta", ventaService.obtenerTodos());
+            model.addAttribute("producto", productoService.obtenerTodos());
             model.addAttribute("action", "create");
             return "detalleVenta/mant";
     }
+
+    // Convertir IDs en objetos completos usando Optional
+    Optional<Venta> ventaOpt = ventaService.buscarPorId(detalleVenta.getVenta().getId());
+    ventaOpt.ifPresent(detalleVenta::setVenta);
+    Optional<Producto> productoOpt = productoService.buscarPorId(detalleVenta.getProducto().getId());
+    productoOpt.ifPresent(detalleVenta::setProducto);
+
+    // Calcular subtotal automáticamente
+    if (detalleVenta.getCantidad() != null && detalleVenta.getPrecioUnitario() != null) {
+        detalleVenta.setSubtotal(BigDecimal.valueOf(detalleVenta.getCantidad() * detalleVenta.getPrecioUnitario()));
+    }
+
     destalleVentaService.crearOEditar(detalleVenta);
     redirect.addFlashAttribute("msg", "Detalle de venta creada correctamente");
     return "redirect:/detalleVentas";
@@ -115,10 +139,22 @@ public String saveEditado(@ModelAttribute DetalleVenta detalleVenta, BindingResu
 
     if (result.hasErrors()) {
         model.addAttribute("detalleVentas", destalleVentaService.obtenerTodos());
-        model.addAttribute("ventas", ventaService.obtenerTodos());
+        model.addAttribute("venta", ventaService.obtenerTodos());
+        model.addAttribute("producto", productoService.obtenerTodos());
         model.addAttribute("action", "edit");
         return "detalleVenta/mant";
     }
+     // Convertir IDs en objetos completos usando Optional
+    Optional<Venta> ventaOpt = ventaService.buscarPorId(detalleVenta.getVenta().getId());
+    ventaOpt.ifPresent(detalleVenta::setVenta);
+    Optional<Producto> productoOpt = productoService.buscarPorId(detalleVenta.getProducto().getId());
+    productoOpt.ifPresent(detalleVenta::setProducto);
+
+    // Calcular subtotal automáticamente
+    if (detalleVenta.getCantidad() != null && detalleVenta.getPrecioUnitario() != null) {
+        detalleVenta.setSubtotal(BigDecimal.valueOf(detalleVenta.getCantidad() * detalleVenta.getPrecioUnitario()));
+    }
+    
     destalleVentaService.crearOEditar(detalleVenta);
     redirect.addFlashAttribute("msg", "Detalle de venta actualizada correctamente");
     return "redirect:/detalleVentas";

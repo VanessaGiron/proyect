@@ -1,5 +1,7 @@
 package com.esfe.proyect.Modelos;
 
+import java.math.BigDecimal;
+
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 
@@ -28,7 +30,7 @@ public class DetalleVenta {
 
     @NotNull(message = "El subtotal es requerido")
     @Positive(message = "El subtotal debe ser mayor que cero")
-    private Double subtotal;
+    private BigDecimal subtotal;
 
 
     public DetalleVenta() {}
@@ -73,11 +75,11 @@ public class DetalleVenta {
         this.precioUnitario = precioUnitario;
     }
 
-    public Double getSubtotal() {
+    public BigDecimal getSubtotal() {
         return subtotal;
     }
 
-    public void setSubtotal(Double subtotal) {
+    public void setSubtotal(BigDecimal subtotal) {
         this.subtotal = subtotal;
     }
 
