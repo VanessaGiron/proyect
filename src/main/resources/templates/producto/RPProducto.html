@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html xmlns="http://www.thymeleaf.org">
+<head>
+    <style>
+        body { font-family: Arial, sans-serif; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid black; padding: 6px; text-align: left; }
+        th { background-color: #f2f2f2; }
+        h1 { text-align: center; }
+    </style>
+</head>
+<body>
+    <h1>Lista de Productos</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>Nombre</th>
+                <th>Descripción</th>
+                <th>Precio</th>
+                <th>Stock</th>
+                <th>Tipo</th>
+                <th>Marca</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="producto : ${productos}">
+                <td th:text="${producto.nombre}">Nombre</td>
+                <td th:text="${producto.descripcion}">Descripción</td>
+                <td th:text="${producto.precio}">Precio</td>
+                <td th:text="${producto.stock}">Stock</td>
+                <td th:text="${producto.tipo}">Tipo</td>
+                <td th:text="${producto.marca}">Marca</td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(productos)}">
+                <td colspan="6" style="text-align:center; color: #999;">No hay productos registrados.</td>
+            </tr>
+        </tbody>
+    </table>
+</body>
+</html>

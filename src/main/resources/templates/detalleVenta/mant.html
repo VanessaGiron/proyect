@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/_mainLayout}">
+<head>
+    <title th:text="'Mantenimiento de detalle de venta - '+ ${action}">Mantenimiento</title>
+    <link rel="stylesheet" th:href="@{/assets/css/sb-admin-2.min.css}">
+</head>
+<body>
+    <div layout:fragment="content" class="container mt-4">
+        <h2 th:action="'detalleVenta - '+ ${action}">Detalle de Ventas</h2>
+
+        <form th:action="@{'/detalleVentas/' + ${action}}" th:object="${detalleVenta}" method="post">
+            <input type="hidden" th:field="*{id}">
+  
+             <div class="form-group mb-3">
+               <label for="venta">Venta:</label>
+               <select id="venta" th:field="*{venta.id}" class="form-control"
+                       th:disabled="${action == 'view' or action == 'delete'}">
+                <option th:each="v : ${venta}"  th:value="${v.id}" 
+                       th:text="${v.fechaVenta}"></option>
+                </select>
+                    <div class="text-danger" th:if="${#fields.hasErrors('venta')}" th:errors="*{venta}"></div>
+                </div>
+
+                <div class="form-group mb-3">
+               <label for="producto">Producto:</label>
+               <select id="producto" th:field="*{producto.id}" class="form-control"
+                       th:disabled="${action == 'view' or action == 'delete'}">
+                <option th:each="p : ${producto}"  th:value="${p.id}" 
+                       th:text="${p.nombre}"></option>
+                </select>
+                    <div class="text-danger" th:if="${#fields.hasErrors('producto')}" th:errors="*{producto}"></div>
+                </div>
+
+                <div class="form-group mb-3">
+                <label for="cantidad">Cantidad:</label>
+                <input type="number" id="cantidad" th:field="*{cantidad}" class="form-control" step="1" min="1"
+                       th:readonly="${action == 'view' or action == 'delete'}" />
+                <div class="text-danger" th:if="${#fields.hasErrors('cantidad')}" th:errors="*{cantidad}"></div>
+            </div>
+
+            <div class="form-group mb-3">
+                <label for="precioUnitario">Precio Unitario:</label>
+                <input type="number" id="precioUnitario" th:field="*{precioUnitario}" class="form-control" step="0.01"
+                       th:readonly="${action == 'view' or action == 'delete'}" />
+                <div class="text-danger" th:if="${#fields.hasErrors('precioUnitario')}" th:errors="*{precioUnitario}"></div>
+            </div>
+
+            <div class="form-group mb-3">
+                <label for="subtotal">Subtotal:</label>
+                <input type="text" id="subtotal" th:field="*{subtotal}" class="form-control"
+                      th:readonly="${action == 'view' or action == 'delete'}" readonly/> 
+                <div class="text-danger" th:if="${#fields.hasErrors('subtotal')}" th:errors="*{subtotal}"></div>
+            </div>
+
+            <div class="form-group">
+                <button type="submit" class="btn btn-primary" 
+                        th:text="${action == 'edit' ? 'Actualizar' : (action == 'delete' ? 'Eliminar' : 'Guardar')}">
+                </button>
+                <a th:href="@{/detalleVentas}" class="btn btn-secondary">Cancelar</a>
+            </div>
+        </form>
+    </div>
+    <script>
+document.addEventListener('DOMContentLoaded', () => {
+    const cantidad = document.getElementById('cantidad');
+    const precioUnitario = document.getElementById('precioUnitario');
+    const subtotal = document.getElementById('subtotal');
+
+    function actualizarSubtotal() {
+        const cant = parseFloat(cantidad.value) || 0;
+        const precio = parseFloat(precioUnitario.value) || 0;
+        subtotal.value = (cant * precio).toFixed(2);
+    }
+
+    cantidad.addEventListener('input', actualizarSubtotal);
+    precioUnitario.addEventListener('input', actualizarSubtotal);
+});
+</script>
+
+</body>
+</html>

@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html xmlns="http://www.thymeleaf.org">
+<head>
+    <style>
+        body {font-family: Arial, sans-serif;}
+        table {width: 100%; border-collapse: collapse;}
+        th, td {border: 1px solid black; padding: 6px;}
+        th {background-color: #f2f2f2;}
+    </style>
+</head>
+<body>
+    <h1>Lista de Ventas</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>Estado</th>
+                <th>Fecha Venta</th>
+                <th>Cliente</th>
+                <th>Total</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="venta : ${ventas}">
+                <td th:text="${venta.estado}"></td>
+                <td th:text="${venta.fechaVenta}"></td>
+                <td th:text="${venta.cliente.nombre}"></td>
+                <td th:text="${venta.total}"></td>
+            </tr>
+        </tbody>
+    </table>
+</body>
+</html>
