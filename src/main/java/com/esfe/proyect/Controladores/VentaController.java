@@ -22,10 +22,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-<<<<<<< HEAD
-=======
-
->>>>>>> 34d873c381ce1d2c523413040692b34e7e91ae17
 import com.esfe.proyect.Modelos.Venta;
 import com.esfe.proyect.Servicios.interfaces.IClienteService;
 import com.esfe.proyect.Servicios.interfaces.IVentaService;
