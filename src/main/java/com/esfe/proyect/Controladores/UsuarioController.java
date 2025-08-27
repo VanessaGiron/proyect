@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+
 import com.esfe.proyect.Modelos.Rol;
 import com.esfe.proyect.Modelos.Usuario;
 import com.esfe.proyect.Servicios.interfaces.IRolService;
@@ -44,10 +45,10 @@ public class UsuarioController {
     public String index(Model model,
             @RequestParam("page") Optional<Integer> page,
             @RequestParam("size") Optional<Integer> size) {
-        int currentPage = page.orElse(1);
+        int currentPage = page.orElse(1) - 1; //falta -1
         int pageSize = size.orElse(5);
 
-        Pageable pageable = PageRequest.of(currentPage - 1, pageSize);
+        Pageable pageable = PageRequest.of(currentPage , pageSize); //aqui estaba un -1 en medio
 
         Page<Usuario> usuarios = usuarioService.buscarTodos(pageable);
         model.addAttribute("usuarios", usuarios);

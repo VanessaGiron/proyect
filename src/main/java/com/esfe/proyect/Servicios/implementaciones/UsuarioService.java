@@ -29,7 +29,7 @@ public class UsuarioService implements IUsuarioService {
 
     @Override
     public Optional<Usuario> buscarPorId(Integer id) {
-        return usuarioRepository.findById(id);
+        return usuarioRepository.findById(id); // falta .get(); //
     }
 
     @Override

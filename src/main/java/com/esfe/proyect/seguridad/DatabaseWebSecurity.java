@@ -20,11 +20,11 @@ public class DatabaseWebSecurity {
     @Bean
     public UserDetailsManager customUser(DataSource dataSource){
         JdbcUserDetailsManager users = new JdbcUserDetailsManager(dataSource);
-        users.setUsersByUsernameQuery("select login, clave, status as enabled from usuario where login =?");
-        users.setAuthoritiesByUsernameQuery("select u.login, r.nombre as authority from usuario_rol ur" +
-        " inner join usuario u on u.id = ur.usuario_id" +
-        " inner join rol r on r.id = ur.rol_id" +
-        " where u.login = ?");
+       users.setUsersByUsernameQuery("select login, clave, status as enabled from usuario where login = ?");
+        users.setAuthoritiesByUsernameQuery("select u.login, r.nombre as authority from usuario_rol ur " +
+                "inner join usuario u on u.id = ur.usuario_id " +
+                "inner join rol r on r.id = ur.rol_id " +
+                "where u.login = ?");
     
         return users;
     }
@@ -32,12 +32,21 @@ public class DatabaseWebSecurity {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception{
         http.authorizeHttpRequests(authorize -> authorize
-            .requestMatchers("/assets/**", "/css/**", "/js/**", "/images/**","/fonts/**","/error/", "/privacy", "/terms").permitAll()
-            .requestMatchers("/usuarios/**").permitAll()
+            .requestMatchers("/assets/**", "/css/**", "/js/**", "/images/**","/fonts/**","/error/", "/", "/privacy", "/terms").permitAll() // faltaba "/"
+            .requestMatchers("/usuarios/**").hasAuthority("admin")
+            .requestMatchers("/clientes/**").hasAuthority("admin")
+            .requestMatchers("/producto/**").hasAuthority("admin")
+            .requestMatchers("/ventas/**").hasAuthority("admin")
+            .requestMatchers("/detalleVentas/**").hasAuthority("admin")
             .anyRequest().authenticated()
             
-            );
-            return http.build();
+        );
+        http.formLogin(form -> form
+            .loginPage("/login").permitAll()
+            .defaultSuccessUrl("/", true)
+
+     );
+        return http.build();
     }
 
     @Bean

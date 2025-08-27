@@ -61,6 +61,7 @@ public class Usuario {
         Roles = roles;
     }
 
+        //Metod para agregar roles
     public void agregar(Rol temRol){
         if(Roles == null){
             Roles = new LinkedList<>();
