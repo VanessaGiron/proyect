@@ -32,7 +32,7 @@ public class DatabaseWebSecurity {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception{
         http.authorizeHttpRequests(authorize -> authorize
-            .requestMatchers("/assets/**", "/css/**", "/js/**", "/images/**","/fonts/**","/error/", "/", "/privacy", "/terms").permitAll() // faltaba "/"
+            .requestMatchers("/assets/**", "/css/**", "/js/**", "/images/**","/fonts/**","/video/*","/error/", "/", "/privacy", "/terms").permitAll() // faltaba "/"
             .requestMatchers("/usuarios/**").hasAuthority("admin")
             .requestMatchers("/clientes/**").hasAuthority("admin")
             .requestMatchers("/producto/**").hasAuthority("admin")

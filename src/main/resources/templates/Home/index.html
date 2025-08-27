@@ -1,12 +1,433 @@
-<html 
-  xmlns:th="http://www.thymeleaf.org"
-  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-  layout:decorate="/layouts/_mainLayout.html">
-<title>TechnoFriends</title>
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="/layouts/_mainLayout.html">
+<head>
+    <title>TechnoFriends</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Estilos para el reproductor de video */
+        .video-section {
+            background: #f8f9fc;
+            padding: 2rem 0;
+        }
+        
+        .video-main-container {
+            display: flex;
+            gap: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .video-player-column {
+            flex: 7;
+        }
+        
+        .video-info-column {
+            flex: 3;
+        }
+        
+        .video-container {
+            position: relative;
+            width: 100%;
+            background: #000;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+        
+        .video-player {
+            width: 100%;
+            height: auto;
+            display: block;
+            aspect-ratio: 16/9;
+        }
+        
+        .video-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 1;
+            transition: opacity 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .video-container:hover .video-overlay {
+            opacity: 1;
+        }
+        
+        .play-button {
+            width: 70px;
+            height: 70px;
+            background: rgba(78, 115, 223, 0.9);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+            transition: all 0.3s ease;
+        }
+        
+        .play-button:hover {
+            background: rgba(78, 115, 223, 1);
+            transform: scale(1.1);
+        }
+        
+        .video-controls-container {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-top: 1.5rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        
+        .progress-time {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            color: #4e73df;
+            font-weight: 500;
+        }
+        
+        .progress-container {
+            background: #eaecf4;
+            border-radius: 4px;
+            height: 6px;
+            overflow: hidden;
+            margin-bottom: 1rem;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            background: #4e73df;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        
+        .video-controls {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .btn-control {
+            background: #4e73df;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+            font-size: 14px;
+        }
+        
+        .btn-control:hover {
+            background: #3a56c4;
+        }
+        
+        .video-stats {
+            display: flex;
+            gap: 15px;
+            margin: 1rem 0;
+            color: #6e707e;
+            font-size: 14px;
+        }
+        
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .video-info-sidebar {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        
+        .video-info-title {
+            font-size: 18px;
+            margin-bottom: 15px;
+            color: #2e3a59;
+            font-weight: 600;
+        }
+        
+        .video-info-description {
+            color: #6e707e;
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+        }
+        
+        .features-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .features-list li {
+            padding: 8px 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .features-list li i {
+            color: #4e73df;
+        }
+        
+        .upgrade-card {
+            background: linear-gradient(45deg, #4e73df, #224abe);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-top: 1.5rem;
+        }
+        
+        .upgrade-card h4 {
+            margin-top: 0;
+            margin-bottom: 10px;
+        }
+        
+        .upgrade-card p {
+            margin-bottom: 15px;
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        
+        .btn-upgrade {
+            background: white;
+            color: #4e73df;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+        
+        .btn-upgrade:hover {
+            background: #f8f9fc;
+            transform: translateY(-2px);
+        }
+        
+        @media (max-width: 992px) {
+            .video-main-container {
+                flex-direction: column;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .video-controls {
+                justify-content: center;
+            }
+            
+            .play-button {
+                width: 60px;
+                height: 60px;
+                font-size: 20px;
+            }
+        }
+    </style>
 </head>
 <body>
     <div layout:fragment="content">
-       
+        <section class="video-section">
+            <div class="container">
+                <div class="video-main-container">
+                    <!-- Columna principal del video -->
+                    <div class="video-player-column">
+                        <!-- Video Container -->
+                        <div class="video-container">
+                            <video class="video-player" id="mainVideo" poster="https://placehold.it/960x540/4e73df/ffffff?text=TechnoFriends+Video">
+                                <source th:src="@{/assets/video/video.mp4}" type="video/mp4">
+                                Tu navegador no soporta el elemento de video.
+                            </video>
+                            <div class="video-overlay" onclick="playPause()">
+                                <div class="play-button">
+                                    <i class="fas fa-play"></i>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Controles debajo del video -->
+                        <div class="video-controls-container">
+                            <div class="progress-time">
+                                <span id="currentTime">0:00</span>
+                                <span>/</span>
+                                <span id="videoDuration">0:35</span>
+                            </div>
+                            
+                            <div class="progress-container">
+                                <div class="progress-bar" id="videoProgress"></div>
+                            </div>
+                            
+                            <div class="video-stats">
+                                <div class="stat-item">
+                                    <i class="far fa-eye"></i>
+                                    <span>1.2K Vistas</span>
+                                </div>
+                                <div class="stat-item">
+                                    <i class="far fa-clock"></i>
+                                    <span>Hace 2 días</span>
+                                </div>
+                            </div>
+                            
+                            <div class="video-controls">
+                                <button class="btn-control" onclick="playPause()">
+                                    <i class="fas fa-play"></i> Reproducir/Pausa
+                                </button>
+                                <button class="btn-control" onclick="toggleMute()">
+                                    <i class="fas fa-volume-mute"></i> Silenciar
+                                </button>
+                                <button class="btn-control" onclick="makeBig()">
+                                    <i class="fas fa-expand"></i> Pantalla Completa
+                                </button>
+                                <button class="btn-control" onclick="restartVideo()">
+                                    <i class="fas fa-redo"></i> Reiniciar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Columna de información lateral -->
+                    <div class="video-info-column">
+                        <div class="video-info-sidebar">
+                            <h3 class="video-info-title">Bienvenido a TechnoFriends</h3>
+                            <p class="video-info-description">
+                                Descubre todas las funcionalidades de nuestro sistema de gestión empresarial. 
+                                Aprende a utilizar cada módulo para optimizar tus procesos.
+                            </p>
+                            
+                            <h4>Características principales:</h4>
+                            <ul class="features-list">
+                                <li><i class="fas fa-user-circle"></i> Gestion de usuarios</li>
+                                <li><i class="fas fa-users"></i> Control de clientes</li>
+                                <li><i class="fas fa-shopping-cart"></i> Sistema de ventas</li>
+                                <li><i class="fas fa-boxes"></i> Gestión de inventario</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="upgrade-card">
+                            <h4>Upgrade to Pro</h4>
+                            <p>TechnoFriends Pro is packed with premium features, components, and more!</p>
+                            <button class="btn-upgrade">Upgrade Now</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Video Control Scripts -->
+        <script>
+            // Funciones para controlar el video
+            function playPause() {
+                var video = document.getElementById('mainVideo');
+                var playButton = document.querySelector('.play-button i');
+                var controlBtn = document.querySelector('[onclick="playPause()"] i');
+                
+                if (video.paused) {
+                    video.play();
+                    playButton.className = 'fas fa-pause';
+                    controlBtn.className = 'fas fa-pause';
+                    controlBtn.parentElement.innerHTML = '<i class="fas fa-pause"></i> Pausar';
+                } else {
+                    video.pause();
+                    playButton.className = 'fas fa-play';
+                    controlBtn.className = 'fas fa-play';
+                    controlBtn.parentElement.innerHTML = '<i class="fas fa-play"></i> Reproducir';
+                }
+            }
+            
+            function toggleMute() {
+                var video = document.getElementById('mainVideo');
+                var muteButton = document.querySelector('[onclick="toggleMute()"] i');
+                
+                video.muted = !video.muted;
+                muteButton.className = video.muted ? 'fas fa-volume-mute' : 'fas fa-volume-up';
+                muteButton.parentElement.innerHTML = video.muted ? 
+                    '<i class="fas fa-volume-mute"></i> Activar sonido' : 
+                    '<i class="fas fa-volume-up"></i> Silenciar';
+            }
+            
+            function makeBig() {
+                var video = document.getElementById('mainVideo');
+                if (video.requestFullscreen) {
+                    video.requestFullscreen();
+                } else if (video.webkitRequestFullscreen) {
+                    video.webkitRequestFullscreen();
+                } else if (video.msRequestFullscreen) {
+                    video.msRequestFullscreen();
+                }
+            }
+            
+            function restartVideo() {
+                var video = document.getElementById('mainVideo');
+                video.currentTime = 0;
+                video.play();
+                
+                // Actualizar botón de play/pause
+                var playButton = document.querySelector('.play-button i');
+                var controlBtn = document.querySelector('[onclick="playPause()"] i');
+                playButton.className = 'fas fa-pause';
+                controlBtn.className = 'fas fa-pause';
+                controlBtn.parentElement.innerHTML = '<i class="fas fa-pause"></i> Pausar';
+            }
+            
+            // Actualizar barra de progreso
+            document.addEventListener('DOMContentLoaded', function() {
+                var video = document.getElementById('mainVideo');
+                var progressBar = document.getElementById('videoProgress');
+                var currentTime = document.getElementById('currentTime');
+                var videoDuration = document.getElementById('videoDuration');
+                
+                video.addEventListener('timeupdate', function() {
+                    var value = (100 / video.duration) * video.currentTime;
+                    progressBar.style.width = value + '%';
+                    
+                    // Actualizar tiempo actual
+                    var minutes = Math.floor(video.currentTime / 60);
+                    var seconds = Math.floor(video.currentTime % 60);
+                    currentTime.textContent = minutes + ':' + (seconds < 10 ? '0' : '') + seconds;
+                });
+                
+                video.addEventListener('loadedmetadata', function() {
+                    // Formatear duración del video
+                    var minutes = Math.floor(video.duration / 60);
+                    var seconds = Math.floor(video.duration % 60);
+                    videoDuration.textContent = minutes + ':' + (seconds < 10 ? '0' : '') + seconds;
+                });
+                
+                // Pausar video cuando se hace clic en el overlay durante reproducción
+                video.addEventListener('play', function() {
+                    var playButton = document.querySelector('.play-button i');
+                    playButton.className = 'fas fa-pause';
+                });
+                
+                video.addEventListener('pause', function() {
+                    var playButton = document.querySelector('.play-button i');
+                    playButton.className = 'fas fa-play';
+                });
+                
+                // Ocultar overlay al reproducir
+                video.addEventListener('play', function() {
+                    document.querySelector('.video-overlay').style.opacity = '0';
+                });
+                
+                video.addEventListener('pause', function() {
+                    document.querySelector('.video-overlay').style.opacity = '1';
+                });
+            });
+        </script>
     </div>
 </body>
 </html>
