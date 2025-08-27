@@ -14,7 +14,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
-
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -90,4 +90,30 @@ public class UsuarioController {
         attributes.addFlashAttribute("msg", "Usuario creado con exito");
         return "redirect:/usuarios";
     }
+
+@GetMapping("/remove/{id}")
+public String eliminar(@PathVariable("id") Integer id, RedirectAttributes attributes) {
+    try {
+        usuarioService.eliminarPorId(id); // llama al método de la interfaz
+        attributes.addFlashAttribute("msg", "Usuario eliminado con éxito");
+    } catch (Exception e) {
+        attributes.addFlashAttribute("error", "No se pudo eliminar el usuario");
+    }
+    return "redirect:/usuarios";
+}
+
+@GetMapping("/detalle/{id}")
+public String detalle(@PathVariable("id") Integer id, Model model, RedirectAttributes attributes) {
+    Optional<Usuario> usuarioOpt = usuarioService.buscarPorId(id);
+    if (usuarioOpt.isPresent()) {
+        model.addAttribute("usuario", usuarioOpt.get());
+        return "usuario/detalle"; // Vista solo lectura
+    } else {
+        attributes.addFlashAttribute("error", "Usuario no encontrado");
+        return "redirect:/usuarios";
+    }
+}
+
+
+
 }

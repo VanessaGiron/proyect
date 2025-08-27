@@ -4,42 +4,34 @@
 
 <div layout:fragment="content">
     <h1>Crear nuevo usuario</h1>
+
     <form th:action="@{/usuarios/save}" th:object="${usuario}" method="post">
-        <div class="row">
-            <div class="col-md-6">
-                <div class="form-group">
-                    <label for="rol">Rol</label>
-                    <select id="rol" name="rol" class="form-control" required>
-                        <option th:each="rol : ${roles}" th:value="${rol.Id}" th:text="${rol.Nombre}">
-                        </option>
-                    </select>
-                </div>
-            </div>
+        <!-- Selección de Rol -->
+        <div class="form-group">
+            <label for="rol">Rol</label>
+            <select id="rol" name="rol" class="form-control" required>
+                <option value="" disabled selected>-- Seleccione un rol --</option>
+                <option th:each="rol : ${roles}" th:value="${rol.id}" th:text="${rol.nombre}"></option>
+            </select>
         </div>
 
-        <div class="row">
-            <div class="col-md-6">
-                <div class="form-group">
-                    <label for="login">Login</label>
-                    <input type="text" class="form-control" id="login" th:field="*{Login}" required>
-                </div>
-            </div>
+        <!-- Login -->
+        <div class="form-group">
+            <label for="login">Login</label>
+            <input type="text" class="form-control" id="login" th:field="*{login}" placeholder="Ingrese login" required>
         </div>
 
-        <div class="row">
-            <div class="col-md-6">
-                <div class="form-group">
-                    <label for="clave">Clave</label>
-                    <input type="password" class="form-control" id="clave" th:field="*{Clave}" required>
-                </div>
-            </div>
+        <!-- Clave -->
+        <div class="form-group">
+            <label for="clave">Clave</label>
+            <input type="password" class="form-control" id="clave" th:field="*{clave}" placeholder="Ingrese clave" required>
         </div>
 
-        <div class="row">
-            <button type="submit" class="btn btn-primary">Guardar</button> |
-            <a th:href="@{/usuarios}">Regresar</a>
+        <!-- Botones -->
+        <div class="form-group mt-3">
+            <button type="submit" class="btn btn-primary">Guardar</button>
+            <a th:href="@{/usuarios}" class="btn btn-secondary">Regresar</a>
         </div>
     </form>
 </div>
-
 </html>

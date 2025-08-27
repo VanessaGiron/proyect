@@ -43,7 +43,7 @@
                 <td th:text="${item.login}"></td>
                 <td th:text="${item.status == 1} ? 'ACTIVO' : 'INACTIVO'"></td>
                 <td>
-                    <a th:href="@{/usuarios/remove/{id} (id = ${item.id}) }"
+                    <a th:href="@{/usuarios/detalle/{id} (id = ${item.id}) }"
                         class="btn btn-outline-secondary">Detalles</a> |
                     <a th:href="@{/usuarios/remove/{id} (id = ${item.id}) }" class="btn btn-outline-danger">Eliminar</a>
                 </td>

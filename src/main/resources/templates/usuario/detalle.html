@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/_mainlayout}">
+
+<div layout:fragment="content">
+
+    <h1>Detalle del Usuario</h1>
+
+    <!-- Mensaje de error o confirmación -->
+    <div th:if="${msg != null}">
+        <script>
+            Swal.fire({
+                title: "Confirmación",
+                text: '[[${msg}]]',
+                icon: "success"
+            });
+        </script>
+    </div>
+    <div th:if="${error != null}">
+        <script>
+            Swal.fire({
+                title: "Error",
+                text: '[[${error}]]',
+                icon: "error"
+            });
+        </script>
+    </div>
+
+    <!-- Información del usuario -->
+    <div class="card">
+        <div class="card-body">
+            <p><strong>ID:</strong> <span th:text="${usuario.id}"></span></p>
+            <p><strong>Login:</strong> <span th:text="${usuario.login}"></span></p>
+            <p><strong>Estado:</strong>
+                <span th:text="${usuario.status == 1 ? 'ACTIVO' : 'INACTIVO'}"></span>
+            </p>
+            <p><strong>Roles:</strong>
+                <span th:each="rol : ${usuario.roles}" th:text="${rol.nombre} + ' '"></span>
+            </p>
+        </div>
+    </div>
+
+    <!-- Botón para volver al listado -->
+    <a th:href="@{/usuarios}" class="btn btn-outline-primary mt-3">Volver al listado</a>
+
+</div>
+</html>
