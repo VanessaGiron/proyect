@@ -1,0 +1,211 @@
+:root {
+    --primary-color: #4e73df;
+    --primary-dark: #293c74;
+    --secondary-color: #36b9cc;
+    --text-dark: #5a5c69;
+}
+
+.bg-gradient-primary {
+    background-color: var(--primary-dark);
+    background-image: linear-gradient(180deg, var(--primary-dark) 10%, #000000 100%);
+    background-size: cover;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+}
+
+.bg-login-image {
+    background: url('https://source.unsplash.com/random/600x800?technology') center center no-repeat;
+    background-size: cover;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.bg-login-image:after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(180deg, #293c74 10%, #000000 100%);
+}
+
+.card {
+    border: none;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+}
+
+.btn-primary {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+    border-radius: 50px;
+    padding: 12px 20px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 8px rgba(78, 115, 223, 0.3);
+}
+
+.btn-primary:hover {
+    background-color: var(--primary-dark);
+    border-color: var(--primary-dark);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(78, 115, 223, 0.4);
+}
+
+.btn-primary:active, .btn-primary:focus {
+    box-shadow: 0 4px 8px rgba(78, 115, 223, 0.5) !important;
+}
+
+.form-control-user {
+    border-radius: 50px;
+    padding: 15px 20px;
+    transition: all 0.3s ease;
+}
+
+.form-control-user:focus {
+    box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.25);
+    border-color: var(--primary-color);
+}
+
+.logo-container {
+    margin-bottom: 1.5rem;
+    text-align: center;
+}
+
+.system-logo {
+    max-width: 180px;
+    max-height: 120px;
+    margin-bottom: 15px;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    transition: transform 0.3s ease;
+}
+
+.system-logo:hover {
+    transform: scale(1.05);
+}
+
+.logo-text {
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--primary-color);
+    display: inline-flex;
+    align-items: center;
+    margin-top: 10px;
+}
+
+.logo-text i {
+    margin-right: 10px;
+    background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.alert {
+    border-radius: 50px;
+    padding: 10px 20px;
+    margin-bottom: 20px;
+    display: none;
+}
+
+.spinner {
+    display: none;
+    width: 20px;
+    height: 20px;
+    border: 3px solid rgba(255,255,255,0.3);
+    border-radius: 50%;
+    border-top-color: #fff;
+    animation: spin 1s ease-in-out infinite;
+    margin-right: 10px;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+.password-toggle {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: #b7b9cc;
+}
+
+.password-container {
+    position: relative;
+}
+
+/* Responsive adjustments */
+@media (max-width: 991.98px) {
+    .bg-login-image {
+        height: 200px;
+    }
+    
+    .system-logo {
+        max-width: 140px;
+        max-height: 100px;
+    }
+}
+
+.input-error {
+    border-color: #e74a3b !important;
+}
+
+.error-message {
+    color: #e74a3b;
+    font-size: 0.85rem;
+    margin-top: 5px;
+    display: none;
+}
+
+.logo-side {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 30px;
+    color: white;
+    text-align: center;
+}
+
+.logo-side h3 {
+    font-weight: 700;
+    margin-top: 20px;
+    font-size: 1.5rem;
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
+}
+
+.logo-side p {
+    font-size: 1rem;
+    margin-top: 10px;
+    opacity: 0.9;
+}
+
+/* Additional styles for better mobile experience */
+@media (max-width: 575.98px) {
+    .card-body {
+        padding: 1.5rem;
+    }
+    
+    .logo-text {
+        font-size: 1.75rem;
+    }
+    
+    .btn-user {
+        padding: 10px 15px;
+    }
+}
