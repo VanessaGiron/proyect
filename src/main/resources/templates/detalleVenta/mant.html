@@ -3,12 +3,12 @@
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{layouts/_mainLayout}">
 <head>
-    <title th:text="'Mantenimiento de detalle de venta - '+ ${action}">Mantenimiento</title>
+    <title th:action="'Mantenimiento de detalle de venta - '+ ${action}">Mantenimiento</title>
     <link rel="stylesheet" th:href="@{/assets/css/sb-admin-2.min.css}">
 </head>
 <body>
     <div layout:fragment="content" class="container mt-4">
-        <h2 th:text="'Detalle de Venta - '+ ${action}">Detalle de Ventas</h2>
+        <h2 th:action="'Detalle de Venta - '+ ${action}">Detalle de Ventas</h2>
 
         <!-- Mostrar errores -->
         <div th:if="${error != null}" class="alert alert-danger alert-dismissible fade show" role="alert">
