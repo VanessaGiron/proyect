@@ -29,7 +29,13 @@ public class Venta {
     private Double total;
 
     @NotNull(message = "El estado de la venta es requerido")
-    private String estado; // Para "Pendiente", "Completada", "Cancelada" aqui va a depender de lo que decidamos 
+    public enum EstadoVenta {
+        ACTIVA, ANULADA
+    }
+
+    @Enumerated(EnumType.ORDINAL)
+    @Column(nullable = false)
+    private EstadoVenta estado;
 
     @ManyToMany
     @JoinTable(
@@ -82,13 +88,13 @@ public class Venta {
         this.total = total;
     }
 
-    public String getEstado() {
+     public EstadoVenta getEstado() {
         return estado;
     }
-
-    public void setEstado(String estado) {
+    public void setEstado(EstadoVenta estado) {
         this.estado = estado;
     }
+
      public List<Producto> getProductos() {
         return productos;
     }

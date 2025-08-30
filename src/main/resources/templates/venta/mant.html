@@ -13,16 +13,7 @@
 <form th:action="@{'/ventas/' + ${action}}" th:object="${venta}" method="post">
     <input type="hidden" th:field="*{id}">
     
-    <div class="form-group mb-3">
-       <label for="estado">Estado:</label>
-       <select id="estado" th:field="*{estado}" class="form-control"
-               th:disabled="${action == 'view' or action == 'delete'}">
-        <option value="Activo">Activo</option>
-        <option value="Pendiente">Proceso</option>
-        <option value="Anulada">Anulada</option>
-       </select>
-        <div class="text-danger" th:if="${#fields.hasErrors('estado')}" th:errors="*{estado}"></div>
-    </div>
+    <input type="hidden" th:field="*{estado}" th:value="${venta.estado.ordinal}" />
     
     <div class="form-group mb-3">
        <label for="fechaVenta">Fecha Venta:</label>

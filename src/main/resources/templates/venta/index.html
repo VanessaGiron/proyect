@@ -105,6 +105,12 @@
                                                     <i class="fas fa-edit"></i>
                                                 </a>
 
+                                                <a th:if="${venta.estado == T(com.esfe.proyect.Modelos.Venta.EstadoVenta).ACTIVA}"
+                                                    th:href="@{/ventas/anular/{id}(id=${venta.id})}" 
+                                                    class="btn btn-danger btn-sm mr-1">
+                                                    <i class="fas fa-ban"></i> Anular
+                                                </a>
+
                                             </div>
                                         </td>
                                     </tr>

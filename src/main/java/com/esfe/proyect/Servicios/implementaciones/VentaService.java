@@ -42,4 +42,9 @@ public class VentaService implements IVentaService {
     public void eliminarPorId(Integer id) {
         ventaRepository.deleteById(id);;
     }
+
+    @Override
+    public List<Venta> buscarPorEstado(Venta.EstadoVenta estado) {
+        return ventaRepository.findByEstado(estado);
+    }
 }

@@ -71,7 +71,9 @@ public class VentaController {
     // tengo que agregar los clientes
     @GetMapping("/create")
     public String create(Model model) {
-        model.addAttribute("venta", new Venta());
+       Venta venta = new Venta();                    
+        venta.setEstado(Venta.EstadoVenta.ACTIVA); 
+        model.addAttribute("venta", venta);
         model.addAttribute("clientes", clienteService.obtenerTodos());
         model.addAttribute("productos", productoService.obtenerTodos());
         model.addAttribute("action", "create");
@@ -192,6 +194,14 @@ public class VentaController {
         //5. Escribir el PDF en la respuesta
         response.getOutputStream().write(pdfBytes);
         response.getOutputStream().flush();
+    }
+
+    @GetMapping("/anular/{id}")
+    public String anular(@PathVariable Integer id) {
+    Venta venta = ventaService.buscarPorId(id).orElseThrow();
+    venta.setEstado(Venta.EstadoVenta.ANULADA); // cambiar estado
+    ventaService.crearOEditar(venta); // guardar cambios
+    return "redirect:/ventas";
     }
 
 }

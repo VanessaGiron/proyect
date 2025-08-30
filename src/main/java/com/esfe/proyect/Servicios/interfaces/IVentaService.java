@@ -20,5 +20,6 @@ public interface IVentaService {
 
     void eliminarPorId(Integer id);
 
+    List<Venta> buscarPorEstado(Venta.EstadoVenta estado);
 
 }
