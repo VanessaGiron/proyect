@@ -37,13 +37,6 @@ public class Venta {
     @Column(nullable = false)
     private EstadoVenta estado;
 
-    @ManyToMany
-    @JoinTable(
-        name = "venta_productos",
-        joinColumns = @JoinColumn(name = "venta_id"),
-        inverseJoinColumns = @JoinColumn(name = "producto_id")
-    )
-    private List<Producto> productos;
 
 
     public Venta() {}
@@ -93,14 +86,6 @@ public class Venta {
     }
     public void setEstado(EstadoVenta estado) {
         this.estado = estado;
-    }
-
-     public List<Producto> getProductos() {
-        return productos;
-    }
-    
-    public void setProductos(List<Producto> productos) {
-        this.productos = productos;
     }
 
 }

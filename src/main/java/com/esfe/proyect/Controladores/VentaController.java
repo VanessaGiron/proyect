@@ -1,5 +1,8 @@
 package com.esfe.proyect.Controladores;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -20,8 +23,12 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.SessionAttributes;
+import org.springframework.web.bind.support.SessionStatus;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import com.esfe.proyect.Modelos.Cliente;
+import com.esfe.proyect.Modelos.DetalleVenta;
 import com.esfe.proyect.Modelos.Producto;
 import com.esfe.proyect.Modelos.Venta;
 import com.esfe.proyect.Servicios.interfaces.IClienteService;
@@ -30,9 +37,11 @@ import com.esfe.proyect.Servicios.interfaces.IVentaService;
 import com.esfe.proyect.utilidades.PdfGeneratorService;
 
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 
 @Controller
 @RequestMapping("/ventas")
+@SessionAttributes("venta")
 public class VentaController {
 
     @Autowired
@@ -70,15 +79,32 @@ public class VentaController {
 
     // tengo que agregar los clientes
     @GetMapping("/create")
-    public String create(Model model) {
-       Venta venta = new Venta();                    
-        venta.setEstado(Venta.EstadoVenta.ACTIVA); 
-        model.addAttribute("venta", venta);
-        model.addAttribute("clientes", clienteService.obtenerTodos());
-        model.addAttribute("productos", productoService.obtenerTodos());
-        model.addAttribute("action", "create");
-        return "venta/mant";
+public String create(Model model, HttpSession session) {
+    
+    // Verificar si ya hay una venta en sesión
+    Venta venta = (Venta) session.getAttribute("venta");
+    
+    if (venta == null) {
+        venta = new Venta();                    
+        venta.setEstado(Venta.EstadoVenta.ACTIVA);
+        venta.setFechaVenta(LocalDate.now()); 
+        venta.setDetalles(new ArrayList<>());
+        session.setAttribute("venta", venta);
+        System.out.println("Nueva venta creada en sesión");
+    } else {
+        System.out.println("Venta existente en sesión con " + 
+                          (venta.getDetalles() != null ? venta.getDetalles().size() : 0) + 
+                          " detalles");
     }
+    
+    model.addAttribute("venta", venta);
+    model.addAttribute("clientes", clienteService.obtenerTodos());
+    model.addAttribute("productos", productoService.obtenerTodos());
+    model.addAttribute("detalleTemporal", new DetalleVenta());
+    model.addAttribute("action", "create");
+    
+    return "venta/mant-unificado";
+}
 
     @GetMapping("/edit/{id}")
     public String edit(@PathVariable Integer id, Model model) {
@@ -112,33 +138,58 @@ public class VentaController {
 
 
     @PostMapping("/create")
-    public String saveNuevo(@ModelAttribute Venta venta,@RequestParam(value = "productosSeleccionados", required = false) List<Integer> productosIds,
-                            BindingResult result,
-                            RedirectAttributes redirect,
-                            Model model) {
-        if (result.hasErrors()) {
-            model.addAttribute("action", "create");
-            model.addAttribute("clientes", clienteService.obtenerTodos());
-            model.addAttribute("productos", productoService.obtenerTodos());
-            return "venta/mant";
-        }
-
-         if (productosIds != null && !productosIds.isEmpty()) {
-            List<Producto> productosSeleccionados = productoService.buscarPorIds(productosIds);
-            venta.setProductos(productosSeleccionados);
-            
-            // Calcular total automáticamente
-            double total = productosSeleccionados.stream()
-                .mapToDouble(Producto::getPrecio)
-                .sum();
-            venta.setTotal(total);
-        }
-
-
-        ventaService.crearOEditar(venta);
-        redirect.addFlashAttribute("msg", "Venta creada correctamente");
-        return "redirect:/ventas";
+public String saveNuevo(@ModelAttribute("venta") Venta venta,
+                       BindingResult result,
+                       RedirectAttributes redirectAttributes,
+                       Model model,
+                       HttpSession session,
+                       SessionStatus status) {
+    
+    if (result.hasErrors()) {
+        model.addAttribute("clientes", clienteService.obtenerTodos());
+        model.addAttribute("productos", productoService.obtenerTodos());
+        model.addAttribute("detalleTemporal", new DetalleVenta());
+        model.addAttribute("action", "create");
+        return "venta/mant-unificado";
     }
+    
+    // Validar que haya detalles
+    if (venta.getDetalles() == null || venta.getDetalles().isEmpty()) {
+        model.addAttribute("clientes", clienteService.obtenerTodos());
+        model.addAttribute("productos", productoService.obtenerTodos());
+        model.addAttribute("detalleTemporal", new DetalleVenta());
+        model.addAttribute("action", "create");
+        model.addAttribute("error", "Debe agregar al menos un producto a la venta");
+        return "venta/mant-unificado";
+    }
+    
+    try {
+        // Asegurar que el cliente esté completamente cargado
+        if (venta.getCliente() != null && venta.getCliente().getId() != null) {
+            Cliente clienteCompleto = clienteService.buscarPorId(venta.getCliente().getId())
+                .orElseThrow();
+            venta.setCliente(clienteCompleto);
+        }
+        
+        // Guardar la venta
+        ventaService.crearOEditar(venta);
+        
+        // Limpiar la sesión después de guardar exitosamente
+        session.removeAttribute("venta");
+        status.setComplete();
+        
+        redirectAttributes.addFlashAttribute("msg", "Venta creada correctamente");
+        return "redirect:/ventas";
+        
+    } catch (Exception e) {
+        model.addAttribute("clientes", clienteService.obtenerTodos());
+        model.addAttribute("productos", productoService.obtenerTodos());
+        model.addAttribute("detalleTemporal", new DetalleVenta());
+        model.addAttribute("action", "create");
+        model.addAttribute("error", "Error al guardar la venta: " + e.getMessage());
+        return "venta/mant-unificado";
+    }
+}
 
     @PostMapping("/edit")
     public String saveEditado(@ModelAttribute Venta venta,@RequestParam(value = "productosSeleccionados", required = false) List<Integer> productosIds,
@@ -150,16 +201,6 @@ public class VentaController {
             model.addAttribute("clientes", clienteService.obtenerTodos());
             return "venta/mant";
         }
-         if (productosIds != null && !productosIds.isEmpty()) {
-        List<Producto> productosSeleccionados = productoService.buscarPorIds(productosIds);
-        venta.setProductos(productosSeleccionados);
-        
-        // Calcular total automáticamente
-        double total = productosSeleccionados.stream()
-            .mapToDouble(Producto::getPrecio)
-            .sum();
-        venta.setTotal(total);
-    }
         ventaService.crearOEditar(venta);
         redirect.addFlashAttribute("msg", "venta actualizada correctamente");
         return "redirect:/ventas";
@@ -202,6 +243,68 @@ public class VentaController {
     venta.setEstado(Venta.EstadoVenta.ANULADA); // cambiar estado
     ventaService.crearOEditar(venta); // guardar cambios
     return "redirect:/ventas";
+    }
+    @PostMapping("/agregarDetalle")
+public String agregarDetalle(@ModelAttribute("venta") Venta venta,
+                        @RequestParam("productoId") Integer productoId,
+                        @RequestParam("cantidad") Integer cantidad,
+                        @RequestParam("precioUnitario") Double precioUnitario,
+                        RedirectAttributes redirectAttributes,
+                        HttpSession session) {
+
+    if (venta.getDetalles() == null) {
+        venta.setDetalles(new ArrayList<>());
+    }
+    
+    Optional<Producto> productoOpt = productoService.buscarPorId(productoId);
+    if (productoOpt.isPresent()) {
+        Producto producto = productoOpt.get();
+        
+        DetalleVenta nuevoDetalle = new DetalleVenta();
+        nuevoDetalle.setProducto(producto);
+        nuevoDetalle.setCantidad(cantidad);
+        nuevoDetalle.setPrecioUnitario(precioUnitario);
+        
+        // Calcular subtotal correctamente
+        BigDecimal subtotal = BigDecimal.valueOf(cantidad).multiply(BigDecimal.valueOf(precioUnitario));
+        nuevoDetalle.setSubtotal(subtotal);
+        
+        venta.getDetalles().add(nuevoDetalle);
+        
+        // Recalcular total
+        BigDecimal total = venta.getDetalles().stream()
+            .map(DetalleVenta::getSubtotal)
+            .reduce(BigDecimal.ZERO, BigDecimal::add);
+        
+        venta.setTotal(total.doubleValue());
+        
+        session.setAttribute("venta", venta);
+        redirectAttributes.addFlashAttribute("msg", "Producto agregado correctamente");
+    } else {
+        redirectAttributes.addFlashAttribute("error", "Producto no encontrado");
+    }
+    
+    return "redirect:/ventas/create";
+
+}
+    @GetMapping("/eliminarDetalle/{index}")
+    public String eliminarDetalle(@ModelAttribute("venta") Venta venta,
+                                 @PathVariable int index,
+                                 RedirectAttributes redirectAttributes) {
+        if (venta.getDetalles() != null && index >= 0 && index < venta.getDetalles().size()) {
+            DetalleVenta detalleEliminado = venta.getDetalles().remove(index);
+            
+            double total = venta.getDetalles().stream()
+                .mapToDouble(d -> d.getSubtotal().doubleValue())
+                .sum();
+            venta.setTotal(total);
+            
+            redirectAttributes.addFlashAttribute("msg", "Producto eliminado: " + detalleEliminado.getProducto().getNombre());
+        } else {
+            redirectAttributes.addFlashAttribute("error", "Índice de detalle inválido");
+        }
+        
+        return "redirect:/ventas/create";
     }
 
 }

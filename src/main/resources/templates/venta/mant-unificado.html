@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/_mainLayout}">
+<head>
+    <title th:text="'Mantenimiento de Venta - '+ ${action}">Mantenimiento</title>
+</head>
+<body>
+    <section layout:fragment="content">
+        <!-- Alertas -->
+        <div th:if="${msg != null}" class="alert alert-success alert-dismissible fade show" role="alert">
+            <strong>Éxito:</strong> <span th:text="${msg}"></span>
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <div th:if="${error != null}" class="alert alert-danger alert-dismissible fade show" role="alert">
+            <strong>Error:</strong> <span th:text="${error}"></span>
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+
+        <div class="container mt-4">
+            <h2 th:text="'Venta - '+ ${action}">Ventas</h2>
+
+            <!-- Formulario para agregar detalles -->
+            <form th:action="@{/ventas/agregarDetalle}" method="post" id="formAgregarDetalle">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                <input type="hidden" name="productoId" id="hiddenProductoId"/>
+                <input type="hidden" name="cantidad" id="hiddenCantidad"/>
+                <input type="hidden" name="precioUnitario" id="hiddenPrecioUnitario"/>
+            </form>
+
+            <!-- Formulario principal -->
+            <form th:action="@{'/ventas/' + ${action}}" th:object="${venta}" method="post">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                <input type="hidden" th:field="*{id}"/>
+                <input type="hidden" th:field="*{estado}" th:value="${venta.estado.ordinal()}"/>
+                
+                <!-- Sección de información básica de la venta -->
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group mb-3">
+                           <label for="fechaVenta">Fecha Venta:</label>
+                           <input type="date" id="fechaVenta" th:field="*{fechaVenta}" class="form-control" 
+                                  th:readonly="${action == 'view' or action == 'delete'}" required/>
+                           <div class="text-danger" th:if="${#fields.hasErrors('fechaVenta')}" th:errors="*{fechaVenta}"></div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group mb-3">
+                           <label for="cliente">Cliente:</label>
+                           <select id="cliente" th:field="*{cliente.id}" class="form-control"
+                                   th:disabled="${action == 'view' or action == 'delete'}" required>
+                               <option value="">Seleccionar cliente</option>
+                               <option th:each="c : ${clientes}" th:value="${c.id}" th:text="${c.nombre}"></option>
+                           </select>
+                           <div class="text-danger" th:if="${#fields.hasErrors('cliente')}" th:errors="*{cliente}"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sección para agregar detalles -->
+                <div class="card mb-4" th:if="${action != 'view' and action != 'delete'}">
+                    <div class="card-header">
+                        <h5>Agregar Producto</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label for="productoDetalle">Producto:</label>
+                                    <select id="productoDetalle" class="form-control" required>
+                                        <option value="">Seleccionar producto</option>
+                                        <option th:each="p : ${productos}" 
+                                                th:value="${p.id}" 
+                                                th:text="${p.nombre + ' - $' + p.precio}"
+                                                th:attr="data-precio=${p.precio}"></option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="form-group">
+                                    <label for="cantidadDetalle">Cantidad:</label>
+                                    <input type="number" id="cantidadDetalle" class="form-control" min="1" value="1" required/>
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="form-group">
+                                    <label for="precioDetalle">Precio Unitario:</label>
+                                    <input type="number" id="precioDetalle" class="form-control" step="0.01" min="0.01" readonly required/>
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="form-group">
+                                    <label for="subtotalDetalle">Subtotal:</label>
+                                    <input type="text" id="subtotalDetalle" class="form-control" readonly/>
+                                </div>
+                            </div>
+                            <div class="col-md-3 align-self-end">
+                                <button type="button" class="btn btn-success" onclick="agregarDetalle()">
+                                    <i class="fas fa-plus"></i> Agregar Producto
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tabla de detalles agregados -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5>Productos en la Venta</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th>Producto</th>
+                                        <th>Cantidad</th>
+                                        <th>Precio Unitario</th>
+                                        <th>Subtotal</th>
+                                        <th th:if="${action != 'view' and action != 'delete'}">Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:each="detalle, stat : ${venta.detalles}">
+                                        <td th:text="${detalle.producto.nombre}">Producto</td>
+                                        <td th:text="${detalle.cantidad}">Cantidad</td>
+                                        <td th:text="${'$' + #numbers.formatDecimal(detalle.precioUnitario, 1, 2)}">Precio</td>
+                                        <td th:text="${'$' + #numbers.formatDecimal(detalle.subtotal, 1, 2)}">Subtotal</td>
+                                        <td th:if="${action != 'view' and action != 'delete'}">
+                                            <a th:href="@{'/ventas/eliminarDetalle/' + ${stat.index}}" 
+                                               class="btn btn-danger btn-sm">
+                                                <i class="fas fa-trash"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    <tr th:if="${venta.detalles == null or venta.detalles.empty}">
+                                        <td colspan="5" class="text-center text-muted">
+                                            No hay productos agregados
+                                        </td>
+                                    </tr>
+                                </tbody>
+                                <tfoot>
+                                    <tr>
+                                        <td colspan="3" class="text-right"><strong>Total:</strong></td>
+                                        <td th:text="${'$' + #numbers.formatDecimal(venta.total != null ? venta.total : 0, 1, 2)}">Total</td>
+                                        <td th:if="${action != 'view' and action != 'delete'}"></td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <button type="submit" class="btn btn-primary" 
+                            th:text="${action == 'edit' ? 'Actualizar' : (action == 'delete' ? 'Eliminar' : 'Guardar')}">
+                    </button>
+                    <a th:href="@{/ventas}" class="btn btn-secondary">Cancelar</a>
+                </div>
+            </form>
+        </div>
+    </section>
+
+    <div layout:fragment="scripts">
+        <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const productoSelect = document.getElementById('productoDetalle');
+            const cantidadInput = document.getElementById('cantidadDetalle');
+            const precioInput = document.getElementById('precioDetalle');
+            const subtotalInput = document.getElementById('subtotalDetalle');
+            
+            // Actualizar precio cuando se selecciona un producto
+            productoSelect.addEventListener('change', function() {
+                const selectedOption = this.options[this.selectedIndex];
+                const precio = selectedOption.getAttribute('data-precio');
+                if (precio) {
+                    precioInput.value = precio;
+                    calcularSubtotal();
+                }
+            });
+            
+            // Calcular subtotal cuando cambia la cantidad
+            cantidadInput.addEventListener('input', calcularSubtotal);
+            
+            function calcularSubtotal() {
+                const cantidad = parseFloat(cantidadInput.value) || 0;
+                const precio = parseFloat(precioInput.value) || 0;
+                subtotalInput.value = (cantidad * precio).toFixed(2);
+            }
+            
+            // Calcular subtotal inicial
+            calcularSubtotal();
+        });
+        
+        function agregarDetalle() {
+            const productoSelect = document.getElementById('productoDetalle');
+            const cantidadInput = document.getElementById('cantidadDetalle');
+            const precioInput = document.getElementById('precioDetalle');
+            
+            const productoId = productoSelect.value;
+            const cantidad = cantidadInput.value;
+            const precio = precioInput.value;
+            
+            if (!productoId || !cantidad || !precio) {
+                alert('Por favor, complete todos los campos del producto');
+                return;
+            }
+            
+            // Validar cantidad
+            if (parseInt(cantidad) <= 0) {
+                alert('La cantidad debe ser mayor a 0');
+                return;
+            }
+            
+            // Llenar los campos ocultos del formulario
+            document.getElementById('hiddenProductoId').value = productoId;
+            document.getElementById('hiddenCantidad').value = cantidad;
+            document.getElementById('hiddenPrecioUnitario').value = precio;
+            
+            // Enviar el formulario
+            document.getElementById('formAgregarDetalle').submit();
+        }
+        </script>
+    </div>
+</body>
+</html>

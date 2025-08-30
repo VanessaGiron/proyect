@@ -70,7 +70,6 @@
                                         <th>Id</th>
                                         <th>Fecha_Venta</th>
                                         <th>Cliente</th>
-                                        <th>Producto</th>
                                         <th>Total</th>
                                         <th>Estado</th>
                                         <th>Acciones</th>
@@ -82,23 +81,12 @@
                                         <td th:text="${venta.id}">Id</td>
                                         <td th:text="${venta.fechaVenta}">Fecha_Venta</td>
                                         <td th:text="${venta.cliente.nombre}">Cliente</td>
-                                        <td>
-                                            <span th:if="${venta.productos != null and !venta.productos.empty}">
-                                            <span th:each="producto, iter : ${venta.productos}" 
-                                                    th:text="${producto.nombre} + (${iter.last} ? '' : ', ')">
-                                                </span>
-                                            </span>
-                                            <span th:if="${venta.productos == null or venta.productos.empty}" class="text-muted">
-                                                Sin productos
-                                        </span>
-                                        </td>
-                                        <td th:text="${venta.total}">Total</td>
+                                        <td th:text="${'$' + #numbers.formatDecimal(venta.total, 1, 2)}">Total</td>
                                         <td th:text="${venta.estado}">Estado</td>
                                         <td>
                                             <div class="btn-group" role="group">
-                                                <a th:href="@{/ventas/view/{id}(id=${venta.id})}" 
-                                                   class="btn btn-info btn-sm mr-1">
-                                                    <i class="fas fa-eye"></i>
+                                                <a th:href="@{/ventas/view/{id}(id=${venta.id})}" class="btn btn-info btn-sm">
+                                                      <i class="fas fa-eye"></i> <!-- Ver detalles -->
                                                 </a>
                                                 <a th:href="@{/ventas/edit/{id}(id=${venta.id})}" 
                                                    class="btn btn-warning btn-sm mr-1">
