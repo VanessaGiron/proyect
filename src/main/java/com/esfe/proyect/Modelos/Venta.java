@@ -31,6 +31,14 @@ public class Venta {
     @NotNull(message = "El estado de la venta es requerido")
     private String estado; // Para "Pendiente", "Completada", "Cancelada" aqui va a depender de lo que decidamos 
 
+    @ManyToMany
+    @JoinTable(
+        name = "venta_productos",
+        joinColumns = @JoinColumn(name = "venta_id"),
+        inverseJoinColumns = @JoinColumn(name = "producto_id")
+    )
+    private List<Producto> productos;
+
 
     public Venta() {}
 
@@ -80,6 +88,13 @@ public class Venta {
 
     public void setEstado(String estado) {
         this.estado = estado;
+    }
+     public List<Producto> getProductos() {
+        return productos;
+    }
+    
+    public void setProductos(List<Producto> productos) {
+        this.productos = productos;
     }
 
 }

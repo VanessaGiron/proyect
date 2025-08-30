@@ -26,6 +26,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import com.esfe.proyect.Modelos.DetalleVenta;
 import com.esfe.proyect.Modelos.Producto;
 import com.esfe.proyect.Modelos.Venta;
+import com.esfe.proyect.Servicios.interfaces.IClienteService;
 import com.esfe.proyect.Servicios.interfaces.IDestalleVentaService;
 import com.esfe.proyect.Servicios.interfaces.IProductoService;
 import com.esfe.proyect.Servicios.interfaces.IVentaService;
@@ -48,6 +49,9 @@ public class DetalleVentaController {
 
     @Autowired
     private PdfGeneratorService pdfGeneratorService;
+
+    @Autowired
+    private IClienteService clienteService;
 
     @GetMapping
     public String index(Model model,
@@ -76,6 +80,7 @@ public class DetalleVentaController {
         model.addAttribute("detalleVenta", new DetalleVenta());
         model.addAttribute("venta", ventaService.obtenerTodos());
         model.addAttribute("producto", productoService.obtenerTodos());
+        model.addAttribute("clientes", clienteService.obtenerTodos());
         model.addAttribute("action", "create");
         return "detalleVenta/mant";
     }

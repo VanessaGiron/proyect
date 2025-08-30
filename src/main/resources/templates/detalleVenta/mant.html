@@ -8,53 +8,77 @@
 </head>
 <body>
     <div layout:fragment="content" class="container mt-4">
-        <h2 th:action="'detalleVenta - '+ ${action}">Detalle de Ventas</h2>
+        <h2 th:text="'Detalle de Venta - '+ ${action}">Detalle de Ventas</h2>
+
+        <!-- Mostrar errores -->
+        <div th:if="${error != null}" class="alert alert-danger alert-dismissible fade show" role="alert">
+            <strong>Error:</strong> <span th:text="${error}"></span>
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+
+        <!-- Mostrar mensajes de éxito -->
+        <div th:if="${msg != null}" class="alert alert-success alert-dismissible fade show" role="alert">
+            <strong>Éxito:</strong> <span th:text="${msg}"></span>
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
 
         <form th:action="@{'/detalleVentas/' + ${action}}" th:object="${detalleVenta}" method="post">
             <input type="hidden" th:field="*{id}">
   
-             <div class="form-group mb-3">
-               <label for="venta">Venta:</label>
-               <select id="venta" th:field="*{venta.id}" class="form-control"
+            <div class="form-group mb-3">
+               <label for="venta.id">Venta:</label>
+               <select id="venta.id" name="venta.id" class="form-control"
                        th:disabled="${action == 'view' or action == 'delete'}">
-                <option th:each="v : ${venta}"  th:value="${v.id}" 
-                       th:text="${v.fechaVenta}"></option>
-                </select>
-                    <div class="text-danger" th:if="${#fields.hasErrors('venta')}" th:errors="*{venta}"></div>
-                </div>
+                   <option value="">Seleccionar venta</option>
+                   <option th:each="v : ${venta}" th:value="${v.id}" 
+                           th:text="${#temporals.format(v.fechaVenta, 'dd/MM/yyyy HH:mm')}"
+                           th:selected="${detalleVenta.venta != null and detalleVenta.venta.id == v.id}">
+                   </option>
+               </select>
+               <div class="text-danger" th:if="${#fields.hasErrors('venta')}" th:errors="*{venta}"></div>
+            </div>
 
-                <div class="form-group mb-3">
-               <label for="producto">Producto:</label>
-               <select id="producto" th:field="*{producto.id}" class="form-control"
+            <div class="form-group mb-3">
+               <label for="producto.id">Producto:</label>
+               <select id="producto.id" name="producto.id" class="form-control"
                        th:disabled="${action == 'view' or action == 'delete'}">
-                <option th:each="p : ${producto}"  th:value="${p.id}" 
-                       th:text="${p.nombre}"></option>
-                </select>
-                    <div class="text-danger" th:if="${#fields.hasErrors('producto')}" th:errors="*{producto}"></div>
-                </div>
+                   <option value="">Seleccionar producto</option>
+                   <option th:each="p : ${producto}" th:value="${p.id}" 
+                          th:text="${p.nombre}"
+                          th:selected="${detalleVenta.producto != null and detalleVenta.producto.id == p.id}">
+                   </option>
+               </select>
+               <div class="text-danger" th:if="${#fields.hasErrors('producto')}" th:errors="*{producto}"></div>
+            </div>
 
-                <div class="form-group mb-3">
+            <div class="form-group mb-3">
                 <label for="cantidad">Cantidad:</label>
                 <input type="number" id="cantidad" th:field="*{cantidad}" class="form-control" step="1" min="1"
                        th:readonly="${action == 'view' or action == 'delete'}" />
                 <div class="text-danger" th:if="${#fields.hasErrors('cantidad')}" th:errors="*{cantidad}"></div>
             </div>
 
-             <div class="form-group mb-3">
-                    <label for="precioUnitario">Precio Unitario:</label>
-                    <select id="precioUnitario" th:field="*{precioUnitario}" class="form-control"
-                          th:disabled="${action == 'view' or action == 'delete'}">
-                    <option value="300">$300</option>
-                    <option value="500">$500</option>
-                <option value="700">$700</option>
-            </select>
+            <div class="form-group mb-3">
+                <label for="precioUnitario">Precio Unitario:</label>
+                <select id="precioUnitario" th:field="*{precioUnitario}" class="form-control"
+                       th:disabled="${action == 'view' or action == 'delete'}">
+                    <option th:each="p : ${producto}" 
+                           th:value="${p.precio}" 
+                           th:text="${'$' + p.precio}"
+                           th:selected="${detalleVenta.producto != null and detalleVenta.producto.id == p.id}">
+                    </option>
+                </select>
                 <div class="text-danger" th:if="${#fields.hasErrors('precioUnitario')}" th:errors="*{precioUnitario}"></div>
             </div>
 
             <div class="form-group mb-3">
                 <label for="subtotal">Subtotal:</label>
                 <input type="text" id="subtotal" th:field="*{subtotal}" class="form-control"
-                      th:readonly="${action == 'view' or action == 'delete'}" readonly/> 
+                      th:readonly="true" readonly/> 
                 <div class="text-danger" th:if="${#fields.hasErrors('subtotal')}" th:errors="*{subtotal}"></div>
             </div>
 
@@ -66,22 +90,41 @@
             </div>
         </form>
     </div>
+
     <script>
-document.addEventListener('DOMContentLoaded', () => {
-    const cantidad = document.getElementById('cantidad');
-    const precioUnitario = document.getElementById('precioUnitario');
-    const subtotal = document.getElementById('subtotal');
+    document.addEventListener('DOMContentLoaded', () => {
+        const cantidad = document.getElementById('cantidad');
+        const precioUnitario = document.getElementById('precioUnitario');
+        const subtotal = document.getElementById('subtotal');
+        const productoSelect = document.getElementById('producto.id');
 
-    function actualizarSubtotal() {
-        const cant = parseFloat(cantidad.value) || 0;
-        const precio = parseFloat(precioUnitario.value) || 0;
-        subtotal.value = (cant * precio).toFixed(2);
-    }
+        function actualizarSubtotal() {
+            const cant = parseFloat(cantidad.value) || 0;
+            const precio = parseFloat(precioUnitario.value) || 0;
+            subtotal.value = (cant * precio).toFixed(2);
+        }
 
-    cantidad.addEventListener('input', actualizarSubtotal);
-    precioUnitario.addEventListener('input', actualizarSubtotal);
-});
-</script>
+        // Actualizar precio cuando cambia el producto
+        productoSelect.addEventListener('change', function() {
+            const selectedOption = this.options[this.selectedIndex];
+            const productoId = selectedOption.value;
+            
+            // Buscar el precio correspondiente al producto seleccionado
+            const precioOptions = document.querySelectorAll('#precioUnitario option');
+            precioOptions.forEach(option => {
+                if (option.value === productoId) {
+                    precioUnitario.value = option.value;
+                    actualizarSubtotal();
+                }
+            });
+        });
 
+        cantidad.addEventListener('input', actualizarSubtotal);
+        precioUnitario.addEventListener('input', actualizarSubtotal);
+        
+        // Inicializar subtotal al cargar
+        actualizarSubtotal();
+    });
+    </script>
 </body>
 </html>

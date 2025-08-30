@@ -249,7 +249,7 @@
                         <!-- Video Container -->
                         <div class="video-container">
                             <video class="video-player" id="mainVideo" poster="https://placehold.it/960x540/4e73df/ffffff?text=TechnoFriends+Video">
-                                <source th:src="@{/assets/video/video.mp4}" type="video/mp4">
+                                <source th:src="@{/assets/video/techno.mp4}" type="video/mp4">
                                 Tu navegador no soporta el elemento de video.
                             </video>
                             <div class="video-overlay" onclick="playPause()">
@@ -339,12 +339,12 @@
                     video.play();
                     playButton.className = 'fas fa-pause';
                     controlBtn.className = 'fas fa-pause';
-                    controlBtn.parentElement.innerHTML = '<i class="fas fa-pause"></i> Pausar';
+                    controlBtn.parentElement.innerHTML = '<i class="fas fa-pause"></i> ';
                 } else {
                     video.pause();
                     playButton.className = 'fas fa-play';
                     controlBtn.className = 'fas fa-play';
-                    controlBtn.parentElement.innerHTML = '<i class="fas fa-play"></i> Reproducir';
+                    controlBtn.parentElement.innerHTML = '<i class="fas fa-play"></i> ';
                 }
             }
             

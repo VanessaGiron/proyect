@@ -20,4 +20,6 @@ public interface IProductoService {
 
     void eliminarPorId(Integer id);
 
+    List<Producto> buscarPorIds(List<Integer> ids);
+
 }

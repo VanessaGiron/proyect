@@ -33,19 +33,31 @@
 
    <div class="form-group mb-3">
        <label for="cliente">Cliente:</label>
-       <select id="cliente" th:field="*{cliente}" class="form-control"
+       <select id="cliente" th:field="*{cliente.id}" class="form-control"
                th:disabled="${action == 'view' or action == 'delete'}">
         <option th:each="c : ${clientes}" th:value="${c.id}" th:text="${c.nombre}"></option>
        </select>
         <div class="text-danger" th:if="${#fields.hasErrors('cliente')}" th:errors="*{cliente}"></div>
     </div>
 
-   
+   <!-- Nuevo campo para seleccionar productos -->
+   <div class="form-group mb-3">
+       <label for="productos">Productos:</label>
+       <select id="productos" name="productosSeleccionados" class="form-control" multiple
+               th:disabled="${action == 'view' or action == 'delete'}">
+        <option th:each="p : ${productos}" 
+                th:value="${p.id}" 
+                th:text="${p.nombre + ' - $' + p.precio}"
+                th:selected="${venta.productos != null && venta.productos.contains(p)}">
+        </option>
+       </select>
+       <small class="form-text text-muted">Mantén presionada la tecla Ctrl para seleccionar múltiples productos.</small>
+    </div>
 
     <div class="form-group mb-3">
         <label for="total">Total:</label>
         <input type="text" id="total" th:field="*{total}" class="form-control" 
-               th:readonly="${action == 'view' or action == 'delete'}" />
+               th:readonly="true" />
         <div class="text-danger" th:if="${#fields.hasErrors('total')}" th:errors="*{total}"></div>
     </div>
 
@@ -56,6 +68,35 @@
         <a th:href="@{/ventas}" class="btn btn-secondary">Cancelar</a>
     </div>
 </form>
+
+<!-- Script para calcular el total automáticamente -->
+<script th:if="${action != 'view' and action != 'delete'}">
+document.addEventListener('DOMContentLoaded', function() {
+    const productosSelect = document.getElementById('productos');
+    const totalInput = document.getElementById('total');
+    
+    function calcularTotal() {
+        let total = 0;
+        const selectedOptions = productosSelect.selectedOptions;
+        
+        for (let i = 0; i < selectedOptions.length; i++) {
+            // Extraer el precio del texto de la opción (asumiendo formato "Producto - $precio")
+            const texto = selectedOptions[i].text;
+            const match = texto.match(/\$([0-9.]+)/);
+            if (match) {
+                total += parseFloat(match[1]);
+            }
+        }
+        
+        totalInput.value = total.toFixed(2);
+    }
+    
+    productosSelect.addEventListener('change', calcularTotal);
+    
+    // Calcular total inicial si estamos en edición
+    calcularTotal();
+});
+</script>
 
     </div>
 </body>

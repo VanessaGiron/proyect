@@ -69,6 +69,7 @@
                                     <tr>
                                         <th>ID</th>
                                         <th>Venta</th>
+                                        <th>Cliente</th>
                                         <th>Producto</th>
                                         <th>Cantidad</th>
                                         <th>Precio Unitario</th>
@@ -80,6 +81,7 @@
                                     <tr th:each="detalleventa : ${detalleVentas.content}">
                                         <td th:text="${detalleventa.id}">Id</td>
                                         <td th:text="${detalleventa.venta.fechaVenta}">Venta</td>
+                                        <td th:text="${detalleventa.venta.cliente.nombre}">Cliente</td>
                                         <td th:text="${detalleventa.producto.nombre}">Producto</td>
                                         <td th:text="${detalleventa.cantidad}">Cantidad</td>
                                         <td th:text="${detalleventa.precioUnitario}">Precio Unitario</td>

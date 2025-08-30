@@ -1,4 +1,5 @@
 package com.esfe.proyect.Servicios.implementaciones;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -41,5 +42,14 @@ public class ProductoService implements IProductoService {
     public void eliminarPorId(Integer id) {
         productoRepository.deleteById(id);
     }
+    public List<Producto> buscarProductosPorClienteYFecha(Integer clienteId, Date fecha) {
+        return productoRepository.findProductosByClienteAndFecha(clienteId, fecha);
+    }
+
+    @Override
+    public List<Producto> buscarPorIds(List<Integer> ids) {
+        return productoRepository.findAllById(ids);
+    }
+    
 
 }

@@ -22,8 +22,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import com.esfe.proyect.Modelos.Producto;
 import com.esfe.proyect.Modelos.Venta;
 import com.esfe.proyect.Servicios.interfaces.IClienteService;
+import com.esfe.proyect.Servicios.interfaces.IProductoService;
 import com.esfe.proyect.Servicios.interfaces.IVentaService;
 import com.esfe.proyect.utilidades.PdfGeneratorService;
 
@@ -38,6 +40,9 @@ public class VentaController {
 
     @Autowired
     private IClienteService clienteService;
+
+    @Autowired
+    private IProductoService productoService;
 
     @Autowired
     private PdfGeneratorService pdfGeneratorService;
@@ -68,6 +73,7 @@ public class VentaController {
     public String create(Model model) {
         model.addAttribute("venta", new Venta());
         model.addAttribute("clientes", clienteService.obtenerTodos());
+        model.addAttribute("productos", productoService.obtenerTodos());
         model.addAttribute("action", "create");
         return "venta/mant";
     }
@@ -77,6 +83,7 @@ public class VentaController {
         Venta venta = ventaService.buscarPorId(id).orElseThrow();
         model.addAttribute("venta", venta);
         model.addAttribute("clientes", clienteService.obtenerTodos());
+        model.addAttribute("productos", productoService.obtenerTodos());
         model.addAttribute("action", "edit");
         return "venta/mant";
     }
@@ -86,6 +93,7 @@ public class VentaController {
         Venta venta = ventaService.buscarPorId(id).orElseThrow();
         model.addAttribute("venta", venta);
         model.addAttribute("clientes", clienteService.obtenerTodos());
+        model.addAttribute("productos", productoService.obtenerTodos());
         model.addAttribute("action", "view");
         return "venta/mant";
     }
@@ -95,28 +103,43 @@ public class VentaController {
         Venta venta = ventaService.buscarPorId(id).orElseThrow();
         model.addAttribute("venta", venta);
         model.addAttribute("clientes", clienteService.obtenerTodos());
+        model.addAttribute("productos", productoService.obtenerTodos());
         model.addAttribute("action", "delete");
         return "venta/mant";
     }
 
 
     @PostMapping("/create")
-    public String saveNuevo(@ModelAttribute Venta venta,
+    public String saveNuevo(@ModelAttribute Venta venta,@RequestParam(value = "productosSeleccionados", required = false) List<Integer> productosIds,
                             BindingResult result,
                             RedirectAttributes redirect,
                             Model model) {
         if (result.hasErrors()) {
             model.addAttribute("action", "create");
             model.addAttribute("clientes", clienteService.obtenerTodos());
+            model.addAttribute("productos", productoService.obtenerTodos());
             return "venta/mant";
         }
+
+         if (productosIds != null && !productosIds.isEmpty()) {
+            List<Producto> productosSeleccionados = productoService.buscarPorIds(productosIds);
+            venta.setProductos(productosSeleccionados);
+            
+            // Calcular total automáticamente
+            double total = productosSeleccionados.stream()
+                .mapToDouble(Producto::getPrecio)
+                .sum();
+            venta.setTotal(total);
+        }
+
+
         ventaService.crearOEditar(venta);
         redirect.addFlashAttribute("msg", "Venta creada correctamente");
         return "redirect:/ventas";
     }
 
     @PostMapping("/edit")
-    public String saveEditado(@ModelAttribute Venta venta,
+    public String saveEditado(@ModelAttribute Venta venta,@RequestParam(value = "productosSeleccionados", required = false) List<Integer> productosIds,
                               BindingResult result,
                               RedirectAttributes redirect,
                               Model model) {
@@ -125,10 +148,21 @@ public class VentaController {
             model.addAttribute("clientes", clienteService.obtenerTodos());
             return "venta/mant";
         }
+         if (productosIds != null && !productosIds.isEmpty()) {
+        List<Producto> productosSeleccionados = productoService.buscarPorIds(productosIds);
+        venta.setProductos(productosSeleccionados);
+        
+        // Calcular total automáticamente
+        double total = productosSeleccionados.stream()
+            .mapToDouble(Producto::getPrecio)
+            .sum();
+        venta.setTotal(total);
+    }
         ventaService.crearOEditar(venta);
         redirect.addFlashAttribute("msg", "venta actualizada correctamente");
         return "redirect:/ventas";
     }
+    
 
     @PostMapping("/delete")
     public String deleteVenta(@ModelAttribute Venta venta,
