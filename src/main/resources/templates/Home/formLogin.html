@@ -11,15 +11,16 @@
     <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
     
     <!-- Custom styles -->
+    <link th:href="@{/assets/css/login.css}" rel="stylesheet">
     <link th:href="@{/assets/css/sb-admin-2.min.css}" rel="stylesheet">
-    <style>
+</head>
+<style>
         .bg-gradient-primary {
             background-color: #4e73df;
             background-image: linear-gradient(180deg, #293c74 10%, #000000 100%);
             background-size: cover;
         }
-    </style>
-</head>
+</style>
 
 <body class="bg-gradient-primary">
     <div class="container">
@@ -30,7 +31,13 @@
                     <div class="card-body p-0">
                         <!-- Nested Row within Card Body -->
                         <div class="row">
-                            <div class="col-lg-6 d-none d-lg-block bg-login-image"></div>
+                            <div class="col-lg-6 d-none d-lg-block bg-login-image">
+                                <div class="logo-side">
+                                    <img th:src="@{/assets/img/logo 2.jpeg}" src="https://via.placeholder.com/180x120/4e73df/ffffff?text=TechnoFriends" alt="TechnoFriends Logo" class="system-logo">
+                                    <h3>Sistema de Gestión TechnoFriends</h3>
+                                    <p>Ingresa a tu cuenta para acceder al panel de control</p>
+                                </div>
+                            </div>
                             <div class="col-lg-6">
                                 <div class="p-5">
                                     <div class="text-center">
@@ -74,5 +81,71 @@
     <script th:src="@{/assets/vendor/jquery/jquery.min.js}"></script>
     <script th:src="@{/assets/vendor/bootstrap/js/bootstrap.bundle.min.js}"></script>
     <script th:src="@{/assets/js/sb-admin-2.min.js}"></script>
+    <script>
+        $(document).ready(function() {
+            // Password visibility toggle
+            $('#passwordToggle').click(function() {
+                const passwordInput = $('#password');
+                const type = passwordInput.attr('type') === 'password' ? 'text' : 'password';
+                passwordInput.attr('type', type);
+                $(this).find('i').toggleClass('fa-eye fa-eye-slash');
+            });
+            
+            // Form validation
+            $('#loginForm').on('submit', function(e) {
+                let isValid = true;
+                
+                // Validate username
+                if ($('#username').val().trim() === '') {
+                    $('#username').addClass('input-error');
+                    $('#usernameError').show();
+                    isValid = false;
+                } else {
+                    $('#username').removeClass('input-error');
+                    $('#usernameError').hide();
+                }
+                
+                // Validate password
+                if ($('#password').val().trim() === '') {
+                    $('#password').addClass('input-error');
+                    $('#passwordError').show();
+                    isValid = false;
+                } else {
+                    $('#password').removeClass('input-error');
+                    $('#passwordError').hide();
+                }
+                
+                if (isValid) {
+                    // Show loading state
+                    $('#loginSpinner').show();
+                    $('#loginButton').prop('disabled', true);
+                    $('#loginButton span').text('Iniciando sesión...');
+                } else {
+                    e.preventDefault();
+                    $('#loginAlert').hide();
+                }
+            });
+            
+            // Remove error styles on input
+            $('#username, #password').on('input', function() {
+                $(this).removeClass('input-error');
+                $(this).siblings('.error-message').hide();
+                $('#loginAlert').hide();
+            });
+            
+            // Check if there are error parameters in URL (from Spring Security)
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.has('error')) {
+                $('#alertMessage').text('Usuario o contraseña incorrectos. Por favor, inténtalo de nuevo.');
+                $('#loginAlert').show();
+            }
+            
+            // Check for logout parameter
+            if (urlParams.has('logout')) {
+                $('#alertMessage').text('Has cerrado sesión correctamente.');
+                $('#loginAlert').removeClass('alert-danger').addClass('alert-success').show();
+            }
+        });
+    </script>
 </body>
 </html>
