@@ -78,33 +78,35 @@ public class VentaController {
     }
 
     // tengo que agregar los clientes
-    @GetMapping("/create")
-public String create(Model model, HttpSession session) {
-    
+@GetMapping("/create")
+public String create(Model model, HttpSession session, RedirectAttributes redirectAttributes) {
+
     // Verificar si ya hay una venta en sesión
     Venta venta = (Venta) session.getAttribute("venta");
-    
+
     if (venta == null) {
-        venta = new Venta();                    
+        venta = new Venta();
         venta.setEstado(Venta.EstadoVenta.ACTIVA);
-        venta.setFechaVenta(LocalDate.now()); 
+        venta.setFechaVenta(LocalDate.now());
         venta.setDetalles(new ArrayList<>());
         session.setAttribute("venta", venta);
-        System.out.println("Nueva venta creada en sesión");
     } else {
-        System.out.println("Venta existente en sesión con " + 
-                          (venta.getDetalles() != null ? venta.getDetalles().size() : 0) + 
-                          " detalles");
+        if (venta.getDetalles() == null) {
+            venta.setDetalles(new ArrayList<>());
+        }
     }
-    
+
     model.addAttribute("venta", venta);
     model.addAttribute("clientes", clienteService.obtenerTodos());
     model.addAttribute("productos", productoService.obtenerTodos());
     model.addAttribute("detalleTemporal", new DetalleVenta());
     model.addAttribute("action", "create");
+
+    // Los mensajes de error/éxito vendrán de redirectAttributes automáticamente
     
     return "venta/mant-unificado";
 }
+
 
     @GetMapping("/edit/{id}")
     public String edit(@PathVariable Integer id, Model model) {
@@ -113,7 +115,7 @@ public String create(Model model, HttpSession session) {
         model.addAttribute("clientes", clienteService.obtenerTodos());
         model.addAttribute("productos", productoService.obtenerTodos());
         model.addAttribute("action", "edit");
-        return "venta/mant";
+        return "venta/mant-unificado";
     }
 
     @GetMapping("/view/{id}")
@@ -123,7 +125,7 @@ public String create(Model model, HttpSession session) {
         model.addAttribute("clientes", clienteService.obtenerTodos());
         model.addAttribute("productos", productoService.obtenerTodos());
         model.addAttribute("action", "view");
-        return "venta/mant";
+        return "venta/mant-unificado";
     }
 
     @GetMapping("/delete/{id}")
@@ -133,36 +135,23 @@ public String create(Model model, HttpSession session) {
         model.addAttribute("clientes", clienteService.obtenerTodos());
         model.addAttribute("productos", productoService.obtenerTodos());
         model.addAttribute("action", "delete");
-        return "venta/mant";
+        return "venta/mant-unificado";
     }
 
 
-    @PostMapping("/create")
-public String saveNuevo(@ModelAttribute("venta") Venta venta,
-                       BindingResult result,
-                       RedirectAttributes redirectAttributes,
-                       Model model,
-                       HttpSession session,
-                       SessionStatus status) {
-    
-    if (result.hasErrors()) {
-        model.addAttribute("clientes", clienteService.obtenerTodos());
-        model.addAttribute("productos", productoService.obtenerTodos());
-        model.addAttribute("detalleTemporal", new DetalleVenta());
-        model.addAttribute("action", "create");
-        return "venta/mant-unificado";
+  @PostMapping("/create")
+public String saveNuevo(HttpSession session,
+                        RedirectAttributes redirectAttributes,
+                        SessionStatus status,
+                        Model model) {
+
+    // Obtener venta desde sesión
+    Venta venta = (Venta) session.getAttribute("venta");
+    if (venta == null || venta.getDetalles() == null || venta.getDetalles().isEmpty()) {
+        redirectAttributes.addFlashAttribute("error", "Debe agregar al menos un producto a la venta");
+        return "redirect:/ventas/create"; // Redirigir en lugar de devolver vista
     }
-    
-    // Validar que haya detalles
-    if (venta.getDetalles() == null || venta.getDetalles().isEmpty()) {
-        model.addAttribute("clientes", clienteService.obtenerTodos());
-        model.addAttribute("productos", productoService.obtenerTodos());
-        model.addAttribute("detalleTemporal", new DetalleVenta());
-        model.addAttribute("action", "create");
-        model.addAttribute("error", "Debe agregar al menos un producto a la venta");
-        return "venta/mant-unificado";
-    }
-    
+
     try {
         // Asegurar que el cliente esté completamente cargado
         if (venta.getCliente() != null && venta.getCliente().getId() != null) {
@@ -170,26 +159,27 @@ public String saveNuevo(@ModelAttribute("venta") Venta venta,
                 .orElseThrow();
             venta.setCliente(clienteCompleto);
         }
-        
-        // Guardar la venta
+
+        // Establecer la relación bidireccional
+        for (DetalleVenta detalle : venta.getDetalles()) {
+            detalle.setVenta(venta);
+        }
+
+        // Guardar la venta (PRIMERO GUARDAR)
         ventaService.crearOEditar(venta);
-        
-        // Limpiar la sesión después de guardar exitosamente
-        session.removeAttribute("venta");
-        status.setComplete();
-        
+
+        // SOLO DESPUÉS DE GUARDAR EXITOSAMENTE, limpiar la sesión
+
         redirectAttributes.addFlashAttribute("msg", "Venta creada correctamente");
-        return "redirect:/ventas";
-        
+        return "redirect:/ventas"; // Redirigir a la lista de ventas
+
     } catch (Exception e) {
-        model.addAttribute("clientes", clienteService.obtenerTodos());
-        model.addAttribute("productos", productoService.obtenerTodos());
-        model.addAttribute("detalleTemporal", new DetalleVenta());
-        model.addAttribute("action", "create");
-        model.addAttribute("error", "Error al guardar la venta: " + e.getMessage());
-        return "venta/mant-unificado";
+        // Si hay error, redirigir al formulario manteniendo la sesión
+        redirectAttributes.addFlashAttribute("error", "Error al guardar la venta: " + e.getMessage());
+        return "redirect:/ventas/create"; // Redirigir en lugar de devolver vista
     }
 }
+
 
     @PostMapping("/edit")
     public String saveEditado(@ModelAttribute Venta venta,@RequestParam(value = "productosSeleccionados", required = false) List<Integer> productosIds,
@@ -199,7 +189,7 @@ public String saveNuevo(@ModelAttribute("venta") Venta venta,
         if(result.hasErrors()) {
             model.addAttribute("action", "edit");
             model.addAttribute("clientes", clienteService.obtenerTodos());
-            return "venta/mant";
+            return "venta/mant-unificado";
         }
         ventaService.crearOEditar(venta);
         redirect.addFlashAttribute("msg", "venta actualizada correctamente");

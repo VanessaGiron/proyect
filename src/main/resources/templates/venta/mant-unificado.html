@@ -3,7 +3,7 @@
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{layouts/_mainLayout}">
 <head>
-    <title th:text="'Mantenimiento de Venta - '+ ${action}">Mantenimiento</title>
+    <title th:text="'Mantenimiento de Venta - ' + ${action}">Mantenimiento</title>
 </head>
 <body>
     <section layout:fragment="content">
@@ -22,23 +22,23 @@
         </div>
 
         <div class="container mt-4">
-            <h2 th:text="'Venta - '+ ${action}">Ventas</h2>
+            <h2 th:text="'Venta - ' + ${action}">Ventas</h2>
 
             <!-- Formulario para agregar detalles -->
-            <form th:action="@{/ventas/agregarDetalle}" method="post" id="formAgregarDetalle">
-                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
-                <input type="hidden" name="productoId" id="hiddenProductoId"/>
-                <input type="hidden" name="cantidad" id="hiddenCantidad"/>
-                <input type="hidden" name="precioUnitario" id="hiddenPrecioUnitario"/>
-            </form>
+<form th:action="@{/ventas/agregarDetalle}" method="post" id="formAgregarDetalle">
+    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+    <input type="hidden" name="productoId" id="hiddenProductoId"/>
+    <input type="hidden" name="cantidad" id="hiddenCantidad"/>
+    <input type="hidden" name="precioUnitario" id="hiddenPrecioUnitario"/>
+</form>
 
             <!-- Formulario principal -->
-            <form th:action="@{'/ventas/' + ${action}}" th:object="${venta}" method="post">
+            <form th:action="@{/ventas/create}" th:object="${venta}" method="post" id="formPrincipal">
                 <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
                 <input type="hidden" th:field="*{id}"/>
-                <input type="hidden" th:field="*{estado}" th:value="${venta.estado.ordinal()}"/>
+                <input type="hidden" th:field="*{estado}"/>
                 
-                <!-- Sección de información básica de la venta -->
+                <!-- Sección de  venta -->
                 <div class="row">
                     <div class="col-md-6">
                         <div class="form-group mb-3">
@@ -138,9 +138,7 @@
                                         </td>
                                     </tr>
                                     <tr th:if="${venta.detalles == null or venta.detalles.empty}">
-                                        <td colspan="5" class="text-center text-muted">
-                                            No hay productos agregados
-                                        </td>
+                                        <td colspan="5" class="text-center text-muted">No hay productos agregados</td>
                                     </tr>
                                 </tbody>
                                 <tfoot>
@@ -156,9 +154,7 @@
                 </div>
 
                 <div class="form-group">
-                    <button type="submit" class="btn btn-primary" 
-                            th:text="${action == 'edit' ? 'Actualizar' : (action == 'delete' ? 'Eliminar' : 'Guardar')}">
-                    </button>
+                    <button type="submit" class="btn btn-primary" id="btnGuardar">Guardar</button>
                     <a th:href="@{/ventas}" class="btn btn-secondary">Cancelar</a>
                 </div>
             </form>
@@ -180,6 +176,9 @@
                 if (precio) {
                     precioInput.value = precio;
                     calcularSubtotal();
+                } else {
+                    precioInput.value = '';
+                    subtotalInput.value = '';
                 }
             });
             
@@ -194,36 +193,58 @@
             
             // Calcular subtotal inicial
             calcularSubtotal();
-        });
+            
+            // Validar formulario principal antes de enviar
+                    
+                    // Validar campos obligatorios
+                    const fechaVenta = document.getElementById('fechaVenta').value;
+                    const cliente = document.getElementById('cliente').value;
+                    
+                    if (!fechaVenta || !cliente) {
+                        e.preventDefault();
+                        alert('Complete todos los campos obligatorios');
+                        return false;
+                    }
+                    
+                    return true;
+                });
         
-        function agregarDetalle() {
-            const productoSelect = document.getElementById('productoDetalle');
-            const cantidadInput = document.getElementById('cantidadDetalle');
-            const precioInput = document.getElementById('precioDetalle');
-            
-            const productoId = productoSelect.value;
-            const cantidad = cantidadInput.value;
-            const precio = precioInput.value;
-            
-            if (!productoId || !cantidad || !precio) {
-                alert('Por favor, complete todos los campos del producto');
-                return;
-            }
-            
-            // Validar cantidad
-            if (parseInt(cantidad) <= 0) {
-                alert('La cantidad debe ser mayor a 0');
-                return;
-            }
-            
-            // Llenar los campos ocultos del formulario
-            document.getElementById('hiddenProductoId').value = productoId;
-            document.getElementById('hiddenCantidad').value = cantidad;
-            document.getElementById('hiddenPrecioUnitario').value = precio;
-            
-            // Enviar el formulario
-            document.getElementById('formAgregarDetalle').submit();
+       function agregarDetalle() {
+    
+    const productoSelect = document.getElementById('productoDetalle');
+    const cantidadInput = document.getElementById('cantidadDetalle');
+    const precioInput = document.getElementById('precioDetalle');
+    
+    const productoId = productoSelect.value;
+    const cantidad = cantidadInput.value;
+    const precio = precioInput.value;
+    
+    // Validaciones...
+    
+    // Usar AJAX para debugging
+    fetch('/ventas/agregarDetalle', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'X-CSRF-TOKEN': document.querySelector('input[name="_csrf"]').value
+        },
+        body: new URLSearchParams({
+            'productoId': productoId,
+            'cantidad': cantidad,
+            'precioUnitario': precio
+        })
+    })
+    .then(response => {
+        console.log('Response received:', response);
+        if (response.redirected) {
+            window.location.href = response.url;
         }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+    });
+}
+           
         </script>
     </div>
 </body>

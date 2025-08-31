@@ -44,35 +44,21 @@ public class VentaService implements IVentaService {
    @Override
    @Transactional
    public Venta crearOEditar(Venta venta) {
-    try {
-        System.out.println("Guardando venta...");
-        System.out.println("ID: " + venta.getId());
-        System.out.println("Cliente: " + venta.getCliente().getId());
-        System.out.println("Total: " + venta.getTotal());
-        System.out.println("Número de detalles: " + (venta.getDetalles() != null ? venta.getDetalles().size() : 0));
-        
-        // Guardar la venta primero
-        Venta ventaGuardada = ventaRepository.save(venta);
-        System.out.println("Venta guardada con ID: " + ventaGuardada.getId());
-        
-        // Guardar los detalles
-        if (venta.getDetalles() != null && !venta.getDetalles().isEmpty()) {
-            for (DetalleVenta detalle : venta.getDetalles()) {
-                detalle.setVenta(ventaGuardada);
-                System.out.println("Guardando detalle - Producto: " + detalle.getProducto().getId() + 
-                                 ", Cantidad: " + detalle.getCantidad());
-                detalleVentaRepository.save(detalle);
-            }
-            System.out.println("Detalles guardados exitosamente");
+    System.out.println("Guardando venta: " + venta);
+    System.out.println("Detalles: " + (venta.getDetalles() != null ? venta.getDetalles().size() : 0));
+    
+    Venta ventaGuardada = ventaRepository.save(venta);
+    System.out.println("Venta guardada con ID: " + ventaGuardada.getId());
+    
+    if (venta.getDetalles() != null) {
+        for (DetalleVenta detalle : venta.getDetalles()) {
+            detalle.setVenta(ventaGuardada);
+            DetalleVenta detalleGuardado = detalleVentaRepository.save(detalle);
+            System.out.println("Detalle guardado: " + detalleGuardado.getId());
         }
-        
-        return ventaGuardada;
-        
-    } catch (Exception e) {
-        System.out.println("Error en servicio al guardar venta: " + e.getMessage());
-        e.printStackTrace();
-        throw e;
     }
+    
+    return ventaGuardada; 
 }
 
     @Override 
